@@ -8,3 +8,9 @@ unit-test-job:   # This job runs in the test stage.
   script:
     - echo "Running unit tests..."
     - mw -using Bmain matlab -softwareopengl -batch "openProject(pwd); buildtool test;"
+  artifacts:
+    untracked: false
+    when: on_success
+    access: all
+    paths:
+      - "code-coverage/report.html"
