@@ -14,7 +14,7 @@ unit-test-job:   # This job runs in the test stage.
     when: on_success
     access: all
     paths:
-      - "code-coverage"
+      - "public"
 pages:
   stage: deploy
   tags:
@@ -23,6 +23,6 @@ pages:
     - echo "Deploying to GitLab Pages..."
   artifacts:
     paths:
-      - "code-coverage"
+      - "public"
   only:
     - main
