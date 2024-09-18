@@ -19,7 +19,7 @@ function pathLength = shortest_path(adjMatrix, startIdx, endIdx) %#codegen
 
     % Check the validity of the adjacency matrix
     if (~isAdjMatrixValid(adjMatrix))
-        ErrorCode = -9
+        ErrorCode = -9;
     end
 
     % Check the validity of the startIdx
