@@ -14,7 +14,7 @@ unit-test-job:   # This job runs in the test stage.
     when: on_success
     access: all
     paths:
-      - ""code-coverage""
+      - "code-coverage"
 pages:
   stage: deploy
   script:
