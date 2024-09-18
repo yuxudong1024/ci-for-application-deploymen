@@ -17,10 +17,12 @@ unit-test-job:   # This job runs in the test stage.
       - "code-coverage"
 pages:
   stage: deploy
+  tags:
+    - on-prem
   script:
     - echo "Deploying to GitLab Pages..."
   artifacts:
     paths:
       - "code-coverage"
   only:
-    - main  # or the branch you want to deploy from
+    - main
