@@ -13,7 +13,9 @@ unit-test-job:
     paths:
       - code-coverage/
     reports:
-      cobertura: code-coverage/cobertura-coverage.xml
+      coverage_report:
+        coverage_format: cobertura
+        path: code-coverage/cobertura-coverage.xml
 
 coverage-job:
   stage: coverage
