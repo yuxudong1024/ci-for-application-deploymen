@@ -11,12 +11,18 @@ unit-test-job:
     - mw -using Bmain matlab -softwareopengl -batch "openProject(pwd); buildtool test;"
   artifacts:
     paths:
+      - test-reports/
       - code-coverage/
     reports:
-      cobertura: code-coverage/cobertura-coverage.xml
+      junit: test-reports/junit.xml
+      coverage_report:
+        coverage_format: cobertura
+        path: code-coverage/cobertura-coverage.xml
 
 coverage-job:
   stage: coverage
+  tags:
+    - on-prem
   script:
     - echo "Publishing coverage report..."
   artifacts:
