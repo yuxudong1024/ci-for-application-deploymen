@@ -1,6 +1,7 @@
 stages:
   - test
   - coverage
+  - deploy
 
 unit-test-job:
   stage: test
@@ -31,3 +32,11 @@ coverage-job:
     when: always
   only:
     - main
+
+deploy-job:
+  stage: deploy
+  tags:
+    - on-prem
+  script:
+    - echo "Deploying ctf..."
+    - mw -using Bmain matlab -softwareopengl -batch "openProject(pwd); buildtool buildCtf;"
