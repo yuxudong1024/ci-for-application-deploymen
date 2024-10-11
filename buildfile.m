@@ -16,3 +16,15 @@ plan("test") = TestTask(SourceFiles=FileCollection.fromPaths("source"), ...
 
 % Make the "archive" task the default task in the plan
 plan.DefaultTasks = "test";
+
+end
+
+function buildCtfTask(~)
+    % Build CTF
+    mpsResults = compiler.build.productionServerArchive(fullfile(currentProject().RootFolder, ...
+        "source","shortest_path.m"));
+    disp(mpsResults.Files{1});
+    [status,message] = copyfile(mpsResults.Files{1}, "\\mathworks\inside\labs\matlab\mps");
+    disp(status);
+    disp(message);
+end
