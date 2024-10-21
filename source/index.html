@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Travelling Salesman</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    .input-group {
+      margin-top: 10px;
+    }
+    .input-group .form-control {
+      width: 150px;
+    }
+    .input-group .btn {
+      margin-left: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1 class="mt-4 mb-4">Travelling Salesman Problem</h1>
+    <div class="row">
+      <div class="col">
+        <canvas id="scatterPlot"></canvas>
+      </div>
+    </div>
+    <div class="row mt-3">
+      <div class="col">
+        <div class="input-group">
+          <input type="number" id="pointCount" class="form-control" placeholder="Number of Points" min="1" value="10">
+          <div class="input-group-append">
+            <button id="generateBtn" class="btn btn-primary" onclick="generate()">Generate</button>
+            <button id="solveBtn" class="btn btn-primary" onclick="solve()">Solve</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let server="https://ipws-mps.mathworks.com/shortestTrip";
+    let xValues = [];
+    let yValues = [];
+    // Get canvas element
+    const canvas = document.getElementById('scatterPlot');
+    const ctx = canvas.getContext('2d');
+
+    // Initialize chart
+    const chart = new Chart(ctx, {
+      type: 'scatter',
+      data: {
+        datasets: [
+          {
+            label: 'cities',
+            data: [],
+            borderColor: 'rgba(75, 192, 192, 1)',
+            backgroundColor: 'rgba(75, 192, 192, 0.5)',
+            pointRadius: 5,
+            pointHoverRadius: 8,
+            showLine: false
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          x: {
+            type: 'linear',
+            position: 'bottom'
+          },
+          y: {
+            type: 'linear',
+            position: 'left'
+          }
+        }
+      }
+    });
+    generate();
+
+    function generate() {
+      chart.data.datasets.splice(1); // remove all but first dataset
+      const pointCount = document.getElementById('pointCount').value;
+      let data = [];
+      xValues = [];
+      yValues = [];
+      for (let i = 0; i < pointCount; i++) {
+        const randomX = Math.random() * 10;
+        const randomY = Math.random() * 10;
+        xValues.push(randomX);
+        yValues.push(randomY);
+        data.push({ x: randomX, y: randomY });
+      }
+
+      chart.data.datasets[0].data = data;
+      chart.update();
+    }
+
+    function solve(){      
+      let _data = {
+        rhs: [xValues, yValues],
+        nargout: 1
+      };
+      
+      fetch(server + "/shortestTrip", {
+        method: "POST",
+        body: JSON.stringify(_data),
+        headers: { "Content-type": "application/json" }
+      }).then(response => response.json())
+        .then(jsondata => {
+          let trip = jsondata.lhs[0].mwdata;
+
+          chart.data.datasets.splice(1);
+          const connectedData = [];
+
+          for (let i = 0; i < trip.length; i++) {
+            connectedData.push({ x: xValues[trip[i]-1], y: yValues[trip[i]-1] });
+          }
+          connectedData.push({ x: xValues[trip[0]-1], y: yValues[trip[0]-1] });
+          // Update the dataset with the trip
+          chart.data.datasets.push({
+            label: 'Trip',
+            data: connectedData,
+            type: 'line',
+            fill: false,
+            pointRadius: 0,
+            borderColor: 'rgba(255, 0, 0, 1)',
+            borderWidth: 2
+          });
+
+          // Update the chart
+          chart.update();
+      });
+    }
+  </script>
+</body>
+</html>
