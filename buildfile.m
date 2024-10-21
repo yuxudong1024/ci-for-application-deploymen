@@ -19,12 +19,13 @@ plan.DefaultTasks = "test";
 
 end
 
-function buildCtfTask(~)
-    % Build CTF
+function deployCtfTask(~)
+    % Build and deploy CTF
     mpsResults = compiler.build.productionServerArchive(fullfile(currentProject().RootFolder, ...
-        "source","shortest_path.m"));
+        "source","shortestTrip.m"), "ArchiveName", "shortestTrip");
     disp(mpsResults.Files{1});
     [status,message] = copyfile(mpsResults.Files{1}, "\\mathworks\inside\labs\matlab\mps");
-    disp(status);
-    disp(message);
+    if (~status)
+        error(message);
+    end
 end

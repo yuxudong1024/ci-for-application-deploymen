@@ -40,3 +40,16 @@ deploy-job:
   script:
     - echo "Deploying ctf..."
     - mw -using Bmain matlab -softwareopengl -batch "openProject(pwd); buildtool buildCtf;"
+
+pages:
+  stage: deploy
+  tags:
+    - linux
+  script:
+    - mkdir public
+    - cp -r source/index.html public/
+  artifacts:
+    paths:
+      - public
+  only:
+    - main
