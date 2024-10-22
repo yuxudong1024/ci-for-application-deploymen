@@ -39,7 +39,7 @@ deploy-job:
     - on-prem
   script:
     - echo "Deploying ctf..."
-    - mw -using Bmain matlab -softwareopengl -batch "openProject(pwd); buildtool buildCtf;"
+    - mw -using Bmain matlab -softwareopengl -batch "openProject(pwd); buildtool deployCtf;"
 
 pages:
   stage: deploy
