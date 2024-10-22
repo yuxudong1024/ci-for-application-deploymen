@@ -12,7 +12,8 @@ plan("check") = CodeIssuesTask;
 % Add a task to run tests
 plan("test") = TestTask(SourceFiles=FileCollection.fromPaths("source"), ...
     TestResults=["test-reports/junit.xml","test-reports/junit.html"], ...
-    CodeCoverageResults=["code-coverage/cobertura-coverage.xml","code-coverage/cobertura-coverage.html"]);
+    CodeCoverageResults=["code-coverage/cobertura-coverage.xml", ...
+        "code-coverage/cobertura-coverage.html", "code-coverage/coverage.mat"]);
 
 % Make the "archive" task the default task in the plan
 plan.DefaultTasks = "test";

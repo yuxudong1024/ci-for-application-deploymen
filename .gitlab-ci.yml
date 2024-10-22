@@ -10,6 +10,7 @@ unit-test-job:
   script:
     - echo "Running unit tests..."
     - mw -using Bmain matlab -softwareopengl -batch "openProject(pwd); buildtool test;"
+    - mw -using Bmain matlab -softwareopengl -batch "load(fullfile('code-coverage','coverage.mat')); disp(coverage);"
   artifacts:
     paths:
       - test-reports/
@@ -19,6 +20,7 @@ unit-test-job:
       coverage_report:
         coverage_format: cobertura
         path: code-coverage/cobertura-coverage.xml
+  coverage: '/Statement: \d+/\d+ \((\d+\.\d+)%\)/'
 
 coverage-job:
   stage: coverage
