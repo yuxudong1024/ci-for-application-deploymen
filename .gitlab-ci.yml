@@ -9,7 +9,7 @@ unit-test-job:
     - on-prem
   script:
     - echo "Running unit tests..."
-    - matlab -softwareopengl -batch "openProject(pwd); buildtool test;"
+    - mw -using Bmain matlab -softwareopengl -batch "openProject(pwd); buildtool test;"
   artifacts:
     paths:
       - test-reports/
@@ -39,7 +39,7 @@ deploy-job:
     - on-prem
   script:
     - echo "Deploying ctf..."
-    - matlab -softwareopengl -batch "openProject(pwd); buildtool deployCtf;"
+    - mw -using Bmain matlab -softwareopengl -batch "openProject(pwd); buildtool deployCtf;"
 
 pages:
   stage: deploy
