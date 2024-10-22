@@ -47,7 +47,9 @@ pages:
     - linux
   script:
     - mkdir public
-    - cp -r source/index.html public/
+    - cp source/index.html public/
+    - cp -r code-coverage/ public/
+    - cp -r test-reports/ public/
   artifacts:
     paths:
       - public
