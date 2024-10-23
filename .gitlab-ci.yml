@@ -22,19 +22,6 @@ unit-test-job:
         path: code-coverage/cobertura-coverage.xml
   coverage: '/Statement: \d+/\d+ \((\d+\.\d+)%\)/'
 
-coverage-job:
-  stage: coverage
-  tags:
-    - on-prem
-  script:
-    - echo "Publishing coverage report..."
-  artifacts:
-    paths:
-      - code-coverage/
-    when: always
-  only:
-    - main
-
 deploy-job:
   stage: deploy
   tags:
