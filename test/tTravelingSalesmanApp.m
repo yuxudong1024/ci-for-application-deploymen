@@ -25,7 +25,7 @@ classdef tTravelingSalesmanApp < matlab.uitest.TestCase
         end % function createApp
     end % methods (TestClassSetup)
     
-    methods (Test, ParameterCombination = 'sequential')
+    methods (Test, ParameterCombination = 'sequential', TestTags={'App'})
         function tGeneratedCities(testCase,nCities)
             % choose number of cities and press the generate button
             testCase.type(testCase.App.Spinner,nCities);
