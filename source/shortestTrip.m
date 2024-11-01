@@ -1,5 +1,10 @@
 function trip = shortestTrip(x,y)
-    % from https://www.mathworks.com/help/gads/custom-data-type-optimization-using-ga.html
+    % SHORTESTTRIP Finds the shortest trip between cities defined by the 
+    % x and y coordinates and returns the array of indices of cities to visit. 
+    % The array is ordered such that the first city (x(1),y(1)) is always
+    % visited first, and the index of the second visited city is the lower 
+    % of the two possible indices.
+    % based on https://www.mathworks.com/help/gads/custom-data-type-optimization-using-ga.html
     arguments
         x (:,1) double
         y (:,1) double
@@ -47,6 +52,21 @@ function trip = shortestTrip(x,y)
     numberOfVariables = nStops;
     res = ga(FitnessFcn,numberOfVariables,[],[],[],[],[],[],[],options);
     trip = res{1};
+    trip = orderIndices(trip);
+end
+
+function trip=orderIndices(trip)
+    nCities = length(trip);
+    if (nCities>1)
+        city1 = find(trip==1);
+        trip = circshift(trip,1-city1);
+        nextCity = trip(2);
+        lastCity = trip(nCities);
+        if (lastCity<nextCity)
+            trip = trip(nCities:-1:1);
+            trip = circshift(trip,1);
+        end
+    end
 end
 
 function pop = create_permutations(NVARS,FitnessFcn,options)
