@@ -2,6 +2,7 @@ stages:
   - test
   - coverage
   - deploy
+  - integration-test
 
 unit-test-job:
   stage: test
@@ -44,3 +45,24 @@ pages:
       - public
   only:
     - main
+
+test-endpoint:
+  stage: integration-test
+  image: curlimages/curl:latest
+  script:
+    - |
+      # Make a request and capture the response
+      RESPONSE=$(curl --silent --location 'https://ipws-mps.mathworks.com/shortestTrip/shortestTrip' --header 'Content-Type: application/json' --data ' {"rhs":[[1,1,2,2],[1,2,2,1]],"nargout":1,"outputFormat":{"mode":"small","nanType":"string"}}')
+
+      # Define the expected response as a string
+      EXPECTED_RESPONSE='{"lhs":[[[1,2,3,4]]]}'
+
+      # Check if the actual response matches the expected response; string comparison is enough in our case
+      if [ "$RESPONSE" = "$EXPECTED_RESPONSE" ]; then
+        echo "Test passed: Received expected response"
+      else
+        echo "Test failed: Unexpected response"
+        echo "Expected: $EXPECTED_RESPONSE"
+        echo "Received: $RESPONSE"
+        exit 1
+      fi
