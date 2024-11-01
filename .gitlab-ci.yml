@@ -11,7 +11,7 @@ unit-test-job:
   script:
     - echo "Running unit tests..."
     - Invoke-WebRequest https://ssd.mathworks.com/supportfiles/ci/matlab-batch/v1/win64/matlab-batch.exe -OutFile matlab-batch.exe
-    - matlab-batch -licenseToken "cbollige@mathworks.com|cbolligeAll|$MLM_LICENSE_TOKEN" "ver;"
+    - ./matlab-batch -licenseToken "cbollige@mathworks.com|cbolligeAll|$MLM_LICENSE_TOKEN" "ver;"
     - mw -using Bmain matlab -softwareopengl -batch "openProject(pwd); buildtool test;"
     - mw -using Bmain matlab -softwareopengl -batch "load(fullfile('code-coverage','coverage.mat')); disp(coverage);"
   artifacts:
