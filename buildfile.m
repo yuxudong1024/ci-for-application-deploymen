@@ -31,3 +31,14 @@ function deployCtfTask(~)
         error(message);
     end
 end
+
+function deployWebAppTask(~)
+    % Build and deploy CTF
+    wasResults = compiler.build.webAppArchive(fullfile(currentProject().RootFolder, ...
+        "source","TravelingSalesman.mlapp"));
+    disp(wasResults.Files{1});
+    [status,message] = copyfile(wasResults.Files{1}, "\\mathworks\inside\labs\matlab\mwa");
+    if (~status)
+        error(message);
+    end
+end
