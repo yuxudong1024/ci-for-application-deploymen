@@ -4,7 +4,7 @@ classdef tShortestTrip < matlab.unittest.TestCase & matlabtest.compiler.TestCase
         nCities = {1,2,3,4,50,100,150,200};
     end
 
-    methods(Test)
+    methods(Test, TestTags = {'Integration'})
 
         function prodServerEquivalenceTest(testCase)
             rng("default");
@@ -15,7 +15,9 @@ classdef tShortestTrip < matlab.unittest.TestCase & matlabtest.compiler.TestCase
             executionResults = execute(testCase,buildResults,{[1,1,2,2],[1,2,2,1]});
             verifyExecutionMatchesMATLAB(testCase,executionResults);
         end
+    end
 
+    methods(Test, TestTags = {'Unit'})
         function testFourCities(testCase)
             x = [1,1,2,2];
             y = [1,2,2,1];
@@ -23,7 +25,7 @@ classdef tShortestTrip < matlab.unittest.TestCase & matlabtest.compiler.TestCase
         end
     end
 
-    methods(Test, ParameterCombination = 'sequential')      
+    methods(Test, ParameterCombination = 'sequential', TestTags = {'Unit'})
 
         function testAllCitiesVisitedOnce(testCase,nCities)
             rng("default");
