@@ -10,7 +10,7 @@ unit-test-job:
     - on-prem
   script:
     - echo "Running unit tests..."
-    - matlab-batch -licenseToken "cbollige@mathworks.com|cbolligeAll|$MLM_LICENSETOKEN" "ver;"
+    #- matlab-batch -licenseToken "cbollige@mathworks.com|cbolligeAll|$MLM_LICENSE_TOKEN" "ver;"
     - mw -using Bmain matlab -softwareopengl -batch "openProject(pwd); buildtool test;"
     - mw -using Bmain matlab -softwareopengl -batch "load(fullfile('code-coverage','coverage.mat')); disp(coverage);"
   artifacts:
