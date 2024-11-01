@@ -48,6 +48,8 @@ pages:
 
 test-endpoint:
   stage: integration-test
+  tags:
+    - docker
   image: curlimages/curl:latest
   script:
     - |
