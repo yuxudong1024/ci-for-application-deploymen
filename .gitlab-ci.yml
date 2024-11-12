@@ -12,7 +12,7 @@ unit-test-job:
     - echo "Running unit tests..."
     #- Invoke-WebRequest https://ssd.mathworks.com/supportfiles/ci/matlab-batch/v1/win64/matlab-batch.exe -OutFile matlab-batch.exe
     #- ./matlab-batch -licenseToken "cbollige@mathworks.com|cbolligeAll|$MLM_LICENSE_TOKEN" "ver;"
-    - mw -using Bmain matlab -softwareopengl -batch "buildtool test displayCoverage;"
+    - mw -using Bmain matlab -softwareopengl -batch "buildtool test displayCoverage copyTestReports;"
   artifacts:
     paths:
       - test-reports/
@@ -30,23 +30,7 @@ deploy-job:
     - on-prem
   script:
     - echo "Deploying ctf and web app..."
-    - mw -using Bmain matlab -softwareopengl -batch "buildtool deployMPSArchive deployWebApp;"
-  only:
-    - main
-
-pages:
-  stage: deploy
-  tags:
-    - linux
-  script:
-    - echo "Publish Gitlab pages..."
-    - mkdir public
-    - cp source/index.html public/
-    - cp -r code-coverage/ public/
-    - cp -r test-reports/ public/
-  artifacts:
-    paths:
-      - public
+    - mw -using Bmain matlab -softwareopengl -batch "buildtool deployFrontend deployMPSArchive deployWebApp;"
   only:
     - main
 

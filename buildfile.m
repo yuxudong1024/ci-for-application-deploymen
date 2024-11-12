@@ -18,21 +18,40 @@ function plan = buildfile
     
     plan("integrationTest") = TestTask(Tag="Integration");
     
-    % Make the "archive" task the default task in the plan
+    % Make the "test" task the default task in the plan
     plan.DefaultTasks = "test";
     
     % Dependencies
     plan("displayCoverage").Dependencies = "test";
+    plan("copyTestReports").Dependencies = "test";
+end
+
+function copyTestReportsTask(~, outputFolder)
+    % Copy test reports to outputFolder
+    arguments
+        ~ 
+        outputFolder = "public";
+    end
+    codeCoverageFolder = fullfile(outputFolder,"code-coverage");
+    if ~exist(codeCoverageFolder, 'dir')
+        mkdir(codeCoverageFolder);
+    end
+    testReportFolder = fullfile(outputFolder,"test-reports");
+    if ~exist(testReportFolder, 'dir')
+        mkdir(testReportFolder);
+    end
+    copyfile("code-coverage", codeCoverageFolder);
+    copyfile("test-reports", testReportFolder);
 end
 
 function displayCoverageTask(~)
     % Display coverage
-    s = load("code-coverage/coverage.mat");
+    s = load(fullfile("code-coverage", "coverage.mat"));
     disp(s.coverage);
 end
 
 function deployMPSArchiveTask(~,destination)
-    % Build and deploy CTF
+    % Build production server archive and deploy to production server
     arguments
         ~ 
         destination = "\\mathworks\inside\labs\matlab\mps";
@@ -51,7 +70,7 @@ function deployWebAppTask(~,destination)
         ~ 
         destination = "\\mathworks\inside\labs\matlab\mwa";
     end
-    % Build and deploy CTF
+    % Build web app and deploy to web app server
     wasResults = compiler.build.webAppArchive(fullfile(currentProject().RootFolder, ...
         "source","TravelingSalesman.mlapp"));
     disp(wasResults.Files{1});
@@ -59,4 +78,30 @@ function deployWebAppTask(~,destination)
     if (~status)
         error(message);
     end
+end
+
+function deployFrontendTask(~, apiEndpoint, outputFolder)
+    % Deploy index.html with given apiEndpoint to outputFolder
+    arguments
+        ~ 
+        apiEndpoint = "https://ipws-mps.mathworks.com/shortestTrip/shortestTrip";
+        outputFolder = "public";
+    end
+    fileContent = fileread(fullfile("source","index_template.html"));
+
+    if ~exist(outputFolder, 'dir')
+        mkdir(outputFolder);
+    end
+    outputFilePath = fullfile(outputFolder,"index.html");
+
+    % Replace the placeholder with the actual API endpoint
+    updatedContent = strrep(fileContent, '__API_ENDPOINT__', apiEndpoint);
+
+    % Write the updated content to a new file
+    fileID = fopen(outputFilePath, 'w');
+    if fileID == -1
+        error('Failed to open file: %s', outputFilePath);
+    end
+    fwrite(fileID, updatedContent, 'char');
+    fclose(fileID);
 end
