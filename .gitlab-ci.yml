@@ -12,8 +12,7 @@ unit-test-job:
     - echo "Running unit tests..."
     #- Invoke-WebRequest https://ssd.mathworks.com/supportfiles/ci/matlab-batch/v1/win64/matlab-batch.exe -OutFile matlab-batch.exe
     #- ./matlab-batch -licenseToken "cbollige@mathworks.com|cbolligeAll|$MLM_LICENSE_TOKEN" "ver;"
-    - mw -using Bmain matlab -softwareopengl -batch "openProject(pwd); buildtool test;"
-    - mw -using Bmain matlab -softwareopengl -batch "load(fullfile('code-coverage','coverage.mat')); disp(coverage);"
+    - mw -using Bmain matlab -softwareopengl -batch "openProject(pwd); buildtool test displayCoverage;"
   artifacts:
     paths:
       - test-reports/
@@ -35,12 +34,12 @@ deploy-job:
   only:
     - main
 
-
 pages:
   stage: deploy
   tags:
     - linux
   script:
+    - echo "Publish Gitlab pages..."
     - mkdir public
     - cp source/index.html public/
     - cp -r code-coverage/ public/
@@ -54,24 +53,9 @@ pages:
 test-endpoint:
   stage: integration-test
   tags:
-    - docker
-  image: curlimages/curl:latest
+    - on-prem
   script:
-    - |
-      # Make a request and capture the response
-      RESPONSE=$(curl --silent --location 'https://ipws-mps.mathworks.com/shortestTrip/shortestTrip' --header 'Content-Type: application/json' --data ' {"rhs":[[1,1,2,2],[1,2,2,1]],"nargout":1,"outputFormat":{"mode":"small","nanType":"string"}}')
-
-      # Define the expected response as a string
-      EXPECTED_RESPONSE='{"lhs":[[[1,2,3,4]]]}'
-
-      # Check if the actual response matches the expected response; string comparison is enough in our case
-      if [ "$RESPONSE" = "$EXPECTED_RESPONSE" ]; then
-        echo "Test passed: Received expected response"
-      else
-        echo "Test failed: Unexpected response"
-        echo "Expected: $EXPECTED_RESPONSE"
-        echo "Received: $RESPONSE"
-        exit 1
-      fi
+    - echo "Run integration test..."
+    - mw -using Bmain matlab -softwareopengl -batch "openProject(pwd); buildtool integrationTest;"
   only:
     - main
