@@ -32,6 +32,9 @@ deploy-job:
   script:
     - echo "Deploying ctf and web app..."
     - mw -using Bmain matlab -softwareopengl -batch "openProject(pwd); buildtool deployCtf deployWebApp;"
+  only:
+    - main
+
 
 pages:
   stage: deploy
@@ -70,3 +73,5 @@ test-endpoint:
         echo "Received: $RESPONSE"
         exit 1
       fi
+  only:
+    - main
