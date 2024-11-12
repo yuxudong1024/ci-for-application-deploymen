@@ -1,6 +1,5 @@
 stages:
   - test
-  - coverage
   - deploy
   - integration-test
 
@@ -12,7 +11,7 @@ unit-test-job:
     - echo "Running unit tests..."
     #- Invoke-WebRequest https://ssd.mathworks.com/supportfiles/ci/matlab-batch/v1/win64/matlab-batch.exe -OutFile matlab-batch.exe
     #- ./matlab-batch -licenseToken "cbollige@mathworks.com|cbolligeAll|$MLM_LICENSE_TOKEN" "ver;"
-    - mw -using Bmain matlab -softwareopengl -batch "buildtool test displayCoverage copyTestReports;"
+    - mw -using Bmain matlab -softwareopengl -batch "buildtool test;"
   artifacts:
     paths:
       - test-reports/
@@ -22,15 +21,17 @@ unit-test-job:
       coverage_report:
         coverage_format: cobertura
         path: code-coverage/cobertura-coverage.xml
-  coverage: '/Statement: \d+/\d+ \((\d+\.\d+)%\)/'
 
 deploy-job:
   stage: deploy
   tags:
     - on-prem
   script:
+    - echo "Deploying test and coverage results..."
+    - mw -using Bmain matlab -softwareopengl -batch "buildtool displayCoverage copyTestReports;"
     - echo "Deploying ctf and web app..."
     - mw -using Bmain matlab -softwareopengl -batch "buildtool deployFrontend deployMPSArchive deployWebApp;"
+  coverage: '/Statement: \d+/\d+ \((\d+\.\d+)%\)/'
   only:
     - main
 
