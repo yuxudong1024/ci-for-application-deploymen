@@ -32,8 +32,8 @@ deploy-job:
     - echo "Deploying ctf and web app..."
     - mw -using Bmain matlab -softwareopengl -batch "buildtool deployFrontend deployMPSArchive deployWebApp;"
   coverage: '/Statement: \d+/\d+ \((\d+\.\d+)%\)/'
-  only:
-    - main
+  #only:
+  #  - main
 
 test-endpoint:
   stage: integration-test
