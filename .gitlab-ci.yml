@@ -1,17 +1,10 @@
-variables:
-  MPS_ARCHIVE_NAME: "shortestTrip"
-  MWA_ARCHIVE_NAME: "TravelingSalesman"
-
-workflow:
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "main"'
-      variables:
-        MPS_ARCHIVE_NAME: "shortestTrip${GITLAB_USER_NAME//[ _-]/}"
-        MWA_ARCHIVE_NAME: "TravelingSalesman${GITLAB_USER_NAME//[ _-]/}"
-    - if: '$CI_COMMIT_BRANCH != "main"'
-      variables:
-        MPS_ARCHIVE_NAME: "shortestTrip${GITLAB_USER_NAME//[ _-]/}${CI_JOB_ID}"
-        MWA_ARCHIVE_NAME: "TravelingSalesman${GITLAB_USER_NAME//[ _-]/}${CI_JOB_ID}"
+before_script:
+  - powershell -Command "
+      \$gitlabUserName = \$env:GITLAB_USER_NAME;
+      \$processedUserName = \$gitlabUserName -replace '\s', '';
+      \$env:MPS_ARCHIVE_NAME = '\$env:DEFAULT_PREFIX' + \$processedUserName;
+      \$env:MWA_ARCHIVE_NAME = '\$env:DEFAULT_SUFFIX' + \$processedUserName;
+    "
 
 stages:
   - test
@@ -45,7 +38,6 @@ deploy-job:
     - echo "Deploying test and coverage results..."
     - mw -using Bmain matlab -softwareopengl -batch "buildtool displayCoverage copyTestReports;"
     - echo "Deploying ctf and web app..."
-    - echo "GITLAB_USER_NAME $GITLAB_USER_NAME / ${GITLAB_USER_NAME//[ _-]/}"
     - echo "MPS_ARCHIVE_NAME $MPS_ARCHIVE_NAME"
     - echo "MWA_ARCHIVE_NAME $MWA_ARCHIVE_NAME"
     - mw -using Bmain matlab -softwareopengl -batch "buildtool deployFrontend('${MPS_ARCHIVE_NAME}') deployMPSArchive('${MPS_ARCHIVE_NAME}') deployWebApp('${MWA_ARCHIVE_NAME}');"
