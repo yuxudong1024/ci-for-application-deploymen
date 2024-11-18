@@ -1,3 +1,18 @@
+variables:
+  MPS_ARCHIVE_NAME: "shortestPath"
+  MWA_ARCHIVE_NAME: "TravelingSalesman"
+
+workflow:
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      variables:
+        MPS_ARCHIVE_NAME: "shortestPath_${CI_PROJECT_NAME}_${GITLAB_USER_NAME// /_}"
+        MWA_ARCHIVE_NAME: "TravelingSalesman_${CI_PROJECT_NAME}_${GITLAB_USER_NAME// /_}"
+    - if: '$CI_COMMIT_BRANCH != "main"'
+      variables:
+        MPS_ARCHIVE_NAME: "shortestPath_${CI_PROJECT_NAME}_${GITLAB_USER_NAME// /_}_${CI_COMMIT_BRANCH}"
+        MWA_ARCHIVE_NAME: "TravelingSalesman_${CI_PROJECT_NAME}_${GITLAB_USER_NAME// /_}_${CI_COMMIT_BRANCH}"
+
 stages:
   - test
   - deploy
@@ -30,7 +45,7 @@ deploy-job:
     - echo "Deploying test and coverage results..."
     - mw -using Bmain matlab -softwareopengl -batch "buildtool displayCoverage copyTestReports;"
     - echo "Deploying ctf and web app..."
-    - mw -using Bmain matlab -softwareopengl -batch "buildtool deployFrontend deployMPSArchive deployWebApp;"
+    - mw -using Bmain matlab -softwareopengl -batch "buildtool deployFrontend($MPS_ARCHIVE_NAME) deployMPSArchive($MPS_ARCHIVE_NAME) deployWebApp($MWA_ARCHIVE_NAME);"
   coverage: '/Statement: \d+/\d+ \((\d+\.\d+)%\)/'
   #only:
   #  - main

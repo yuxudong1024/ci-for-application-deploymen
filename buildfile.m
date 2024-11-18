@@ -22,8 +22,8 @@ function plan = buildfile
     plan.DefaultTasks = "test";
     
     % Dependencies
-    plan("displayCoverage").Dependencies = "test";
-    plan("copyTestReports").Dependencies = "test";
+    % plan("displayCoverage").Dependencies = "test";
+    % plan("copyTestReports").Dependencies = "test";
 end
 
 function copyTestReportsTask(~, outputFolder)
@@ -50,43 +50,47 @@ function displayCoverageTask(~)
     disp(s.coverage);
 end
 
-function deployMPSArchiveTask(~,destination)
-    % Build production server archive and deploy to production server
+function deployWebAppTask(~,archiveName,destination)
     arguments
         ~ 
-        destination = "\\mathworks\inside\labs\matlab\mps";
-    end
-    mpsResults = compiler.build.productionServerArchive(fullfile(currentProject().RootFolder, ...
-        "source","shortestTrip.m"), "ArchiveName", "shortestTrip");
-    disp(mpsResults.Files{1});
-    [status,message] = copyfile(mpsResults.Files{1}, destination);
-    if (~status)
-        error(message);
-    end
-end
-
-function deployWebAppTask(~,destination)
-    arguments
-        ~ 
-        destination = "\\mathworks\inside\labs\matlab\mwa";
+        archiveName = "TravelingSalesman";
+        destination = "\\mathworks\inside\labs\matlab\mwa\TravelingSalesman";
     end
     % Build web app and deploy to web app server
     wasResults = compiler.build.webAppArchive(fullfile(currentProject().RootFolder, ...
-        "source","TravelingSalesman.mlapp"));
-    disp(wasResults.Files{1});
+        "source","TravelingSalesman.mlapp"), "ArchiveName", archiveName);
     [status,message] = copyfile(wasResults.Files{1}, destination);
     if (~status)
         error(message);
     end
+    disp(destination + "\" + archiveName);
 end
 
-function deployFrontendTask(~, apiEndpoint, outputFolder)
+function deployMPSArchiveTask(~,archiveName,destination)
+    % Build production server archive and deploy to production server
+    arguments
+        ~ 
+        archiveName = "shortestTrip";
+        destination = "\\mathworks\inside\labs\matlab\mps";
+    end
+    mpsResults = compiler.build.productionServerArchive(fullfile(currentProject().RootFolder, ...
+        "source","shortestTrip.m"), "ArchiveName", archiveName);
+    [status,message] = copyfile(mpsResults.Files{1}, destination);
+    if (~status)
+        error(message);
+    end
+    disp(destination + "\" + archiveName);
+end
+
+function deployFrontendTask(~, archiveName, server, outputFolder)
     % Deploy index.html with given apiEndpoint to outputFolder
     arguments
         ~ 
-        apiEndpoint = "https://ipws-mps.mathworks.com/shortestTrip/shortestTrip";
+        archiveName = "shortestTrip";
+        server = "https://ipws-mps.mathworks.com";
         outputFolder = "public";
     end
+    apiEndpoint = server + "/" + archiveName + "/shortestTrip";
     fileContent = fileread(fullfile("source","index_template.html"));
 
     if ~exist(outputFolder, 'dir')
@@ -104,4 +108,5 @@ function deployFrontendTask(~, apiEndpoint, outputFolder)
     end
     fwrite(fileID, updatedContent, 'char');
     fclose(fileID);
+    disp(outputFilePath);
 end
