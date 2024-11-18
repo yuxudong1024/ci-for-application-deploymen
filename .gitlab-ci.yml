@@ -1,9 +1,8 @@
 before_script:
   - powershell -Command "
-      \$gitlabUserName = \$env:GITLAB_USER_NAME;
-      \$processedUserName = \$gitlabUserName -replace '\s', '';
-      \$env:MPS_ARCHIVE_NAME = '\$env:DEFAULT_PREFIX' + \$processedUserName;
-      \$env:MWA_ARCHIVE_NAME = '\$env:DEFAULT_SUFFIX' + \$processedUserName;
+      $processedUserName = "$env:GITLAB_USER_NAME" -replace '\s', '';
+      $env:MPS_ARCHIVE_NAME = "shortestPath" + $processedUserName;
+      $env:MWA_ARCHIVE_NAME = "TravelingSalesman" + $processedUserName;
     "
 
 stages:
