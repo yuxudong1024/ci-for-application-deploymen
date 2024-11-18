@@ -45,7 +45,7 @@ deploy-job:
     - echo "Deploying test and coverage results..."
     - mw -using Bmain matlab -softwareopengl -batch "buildtool displayCoverage copyTestReports;"
     - echo "Deploying ctf and web app..."
-    - mw -using Bmain matlab -softwareopengl -batch "buildtool deployFrontend($MPS_ARCHIVE_NAME) deployMPSArchive($MPS_ARCHIVE_NAME) deployWebApp($MWA_ARCHIVE_NAME);"
+    - mw -using Bmain matlab -softwareopengl -batch "buildtool deployFrontend('$MPS_ARCHIVE_NAME') deployMPSArchive('$MPS_ARCHIVE_NAME') deployWebApp('$MWA_ARCHIVE_NAME');"
   coverage: '/Statement: \d+/\d+ \((\d+\.\d+)%\)/'
   #only:
   #  - main
