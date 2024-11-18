@@ -69,7 +69,7 @@ function trip=orderIndices(trip)
     end
 end
 
-function pop = create_permutations(NVARS,FitnessFcn,options)
+function pop = create_permutations(NVARS,~,options)
     %CREATE_PERMUTATIONS Creates a population of permutations.
     %   POP = CREATE_PERMUTATION(NVARS,FITNESSFCN,OPTIONS) creates a population
     %  of permutations POP each with a length of NVARS. 
@@ -89,8 +89,8 @@ function pop = create_permutations(NVARS,FitnessFcn,options)
     end
 end
 
-function xoverKids  = crossover_permutation(parents,options,NVARS, ...
-    FitnessFcn,thisScore,thisPopulation)
+function xoverKids  = crossover_permutation(parents,~,~, ...
+    ~,~,thisPopulation)
     %   CROSSOVER_PERMUTATION Custom crossover function for traveling salesman.
     %   XOVERKIDS = CROSSOVER_PERMUTATION(PARENTS,OPTIONS,NVARS, ...
     %   FITNESSFCN,THISSCORE,THISPOPULATION) crossovers PARENTS to produce
@@ -126,8 +126,8 @@ function xoverKids  = crossover_permutation(parents,options,NVARS, ...
     end
 end
 
-function mutationChildren = mutate_permutation(parents ,options,NVARS, ...
-    FitnessFcn, state, thisScore,thisPopulation,mutationRate)
+function mutationChildren = mutate_permutation(parents ,~,~, ...
+    ~, ~, ~,thisPopulation,~)
     %   MUTATE_PERMUTATION Custom mutation function for traveling salesman.
     %   MUTATIONCHILDREN = MUTATE_PERMUTATION(PARENTS,OPTIONS,NVARS, ...
     %   FITNESSFCN,STATE,THISSCORE,THISPOPULATION,MUTATIONRATE) mutate the
