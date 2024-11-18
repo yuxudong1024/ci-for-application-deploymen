@@ -6,12 +6,12 @@ workflow:
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
       variables:
-        MPS_ARCHIVE_NAME: "shortestPath_${CI_PROJECT_NAME}_${GITLAB_USER_NAME// /_}"
-        MWA_ARCHIVE_NAME: "TravelingSalesman_${CI_PROJECT_NAME}_${GITLAB_USER_NAME// /_}"
+        MPS_ARCHIVE_NAME: "shortestPath${GITLAB_USER_NAME//[ _-]/}"
+        MWA_ARCHIVE_NAME: "TravelingSalesman${GITLAB_USER_NAME//[ _-]/}"
     - if: '$CI_COMMIT_BRANCH != "main"'
       variables:
-        MPS_ARCHIVE_NAME: "shortestPath_${CI_PROJECT_NAME}_${GITLAB_USER_NAME// /_}_${CI_COMMIT_BRANCH}"
-        MWA_ARCHIVE_NAME: "TravelingSalesman_${CI_PROJECT_NAME}_${GITLAB_USER_NAME// /_}_${CI_COMMIT_BRANCH}"
+        MPS_ARCHIVE_NAME: "shortestPath${GITLAB_USER_NAME//[ _-]/}${CI_JOB_ID}"
+        MWA_ARCHIVE_NAME: "TravelingSalesman${GITLAB_USER_NAME//[ _-]/}${CI_JOB_ID}"
 
 stages:
   - test
@@ -47,7 +47,7 @@ deploy-job:
     - echo "Deploying ctf and web app..."
     - echo "MPS_ARCHIVE_NAME $MPS_ARCHIVE_NAME"
     - echo "MWA_ARCHIVE_NAME $MWA_ARCHIVE_NAME"
-    - mw -using Bmain matlab -softwareopengl -batch "buildtool deployFrontend('$MPS_ARCHIVE_NAME') deployMPSArchive('$MPS_ARCHIVE_NAME') deployWebApp('$MWA_ARCHIVE_NAME');"
+    - mw -using Bmain matlab -softwareopengl -batch "buildtool deployFrontend('${MPS_ARCHIVE_NAME}') deployMPSArchive('${MPS_ARCHIVE_NAME}') deployWebApp('${MWA_ARCHIVE_NAME}');"
   coverage: '/Statement: \d+/\d+ \((\d+\.\d+)%\)/'
   #only:
   #  - main
