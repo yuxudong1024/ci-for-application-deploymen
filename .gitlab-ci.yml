@@ -1,8 +1,8 @@
 before_script:
   - powershell -Command "
       \$processedUserName = \$env:GITLAB_USER_NAME -replace '\s', '';
-      \$env:MPS_ARCHIVE_NAME = "shortestPath" + \$processedUserName;
-      \$env:MWA_ARCHIVE_NAME = "TravelingSalesman" + \$processedUserName;
+      [System.Environment]::SetEnvironmentVariable('MPS_ARCHIVE_NAME', 'shortestPath' + \$processedUserName, 'Process');
+      [System.Environment]::SetEnvironmentVariable('MWA_ARCHIVE_NAME', 'TravelingSalesman' + \$processedUserName, 'Process');
     "
 
 stages:
