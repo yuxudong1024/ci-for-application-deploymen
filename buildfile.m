@@ -19,7 +19,7 @@ function plan = buildfile
     plan("integrationTest") = TestTask(Tag="Integration");
     
     % Make the "test" task the default task in the plan
-    plan.DefaultTasks = "test";
+    plan.DefaultTasks = ["check" "test" "displayCoverage" "deployFrontend" "deployMPSArchive" "deployWebApp" "integrationTest"];
     
     % Dependencies
     % plan("displayCoverage").Dependencies = "test";
@@ -34,29 +34,31 @@ function copyTestReportsTask(~, outputFolder)
     end
     codeCoverageFolder = fullfile(outputFolder,"code-coverage");
     if ~exist(codeCoverageFolder, 'dir')
-        mkdir(codeCoverageFolder);
+        [status, message] = mkdir(codeCoverageFolder);
+        assert(status==1, message);
     end
     testReportFolder = fullfile(outputFolder,"test-reports");
     if ~exist(testReportFolder, 'dir')
-        mkdir(testReportFolder);
+        [status, message] = mkdir(testReportFolder);
+        assert(status==1, message);
     end
     copyfile("code-coverage", codeCoverageFolder);
     copyfile("test-reports", testReportFolder);
 end
 
 function displayCoverageTask(~)
-    % Display coverage
+    % Display test coverage
     s = load(fullfile("code-coverage", "coverage.mat"));
     disp(s.coverage);
 end
 
 function deployWebAppTask(~,archiveName,destination)
+    % Build web app and deploy to web app server
     arguments
         ~ 
         archiveName = "TravelingSalesman";
         destination = "\\mathworks\inside\labs\matlab\mwa\TravelingSalesman";
     end
-    % Build web app and deploy to web app server
     wasResults = compiler.build.webAppArchive(fullfile(currentProject().RootFolder, ...
         "source","TravelingSalesman.mlapp"), "ArchiveName", archiveName);
     [status,message] = copyfile(wasResults.Files{1}, destination);
@@ -94,7 +96,8 @@ function deployFrontendTask(~, archiveName, server, outputFolder)
     fileContent = fileread(fullfile("source","index_template.html"));
 
     if ~exist(outputFolder, 'dir')
-        mkdir(outputFolder);
+        [status, message] = mkdir(outputFolder);
+        assert(status==1, message);
     end
     outputFilePath = fullfile(outputFolder,"index.html");
 
@@ -109,4 +112,35 @@ function deployFrontendTask(~, archiveName, server, outputFolder)
     fwrite(fileID, updatedContent, 'char');
     fclose(fileID);
     disp(outputFilePath);
+end
+
+function publishAppDiffToMainTask(~, outputFolder)
+    % Publish difference of TravelingSalesman app to status in main branch
+    arguments
+        ~
+        outputFolder = "visdiff";
+    end
+    if ~exist(outputFolder, 'dir')
+        [status, message] = mkdir(outputFolder);
+        assert(status==1, message);
+    end
+
+    appFile = fullfile("source","TravelingSalesman.mlapp");
+    report = publishDiffToMain(appFile, outputFolder);
+    disp(report);
+end
+
+function report = publishDiffToMain(fileName, outputFolder)
+    [~, name, ext] = fileparts(fileName);
+    mainFile = fullfile(outputFolder, name + "_main" + ext);    
+    % Replace seperators to work with git and create main file name
+    fileName = strrep(fileName, '\', '/');
+    mainFile = strrep(mainFile, '\', '/');
+    % Build git command to get file from main
+    gitCommand = sprintf('git --no-pager show origin/main:%s > %s', fileName, mainFile);    
+    [status, result] = system(gitCommand);
+    assert(status==0, result);
+    comp = visdiff(mainFile, fileName);
+    report = publish(comp,'Format','html','OutputFolder',outputFolder);
+    delete(mainFile);
 end

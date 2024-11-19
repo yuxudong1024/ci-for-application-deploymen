@@ -11,7 +11,7 @@ unit-test-job:
     - echo "Running unit tests..."
     #- Invoke-WebRequest https://ssd.mathworks.com/supportfiles/ci/matlab-batch/v1/win64/matlab-batch.exe -OutFile matlab-batch.exe
     #- ./matlab-batch -licenseToken "cbollige@mathworks.com|cbolligeAll|$MLM_LICENSE_TOKEN" "ver;"
-    - mw -using Bmain matlab -softwareopengl -batch "buildtool test;"
+    - mw -using Bmain matlab -softwareopengl -batch "buildtool check test;"
   artifacts:
     paths:
       - test-reports/
@@ -35,6 +35,18 @@ pages:
   artifacts:
     paths:
       - public
+
+visdiff:   
+  stage: deploy
+  tags:
+    - on-prem
+  script:
+    - echo "Comparing current version of MATLAB app to status in main branch..."
+    - mw -using Bmain matlab -softwareopengl -batch "buildtool publishAppDiffToMain('visdiff');"
+    - echo "Report published as artifact in visdiff folder"
+  artifacts:
+    paths:
+      - visdiff
 
 test-endpoint:
   stage: integration-test
