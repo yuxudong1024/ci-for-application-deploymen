@@ -46,7 +46,7 @@ visdiff:
     - echo "Report published as artifact in visdiff folder"
   artifacts:
     paths:
-      - visdiff
+      - visdiff/*
 
 test-endpoint:
   stage: integration-test
