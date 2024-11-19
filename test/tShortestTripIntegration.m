@@ -20,7 +20,7 @@ classdef tShortestTripIntegration < matlab.unittest.TestCase
             url = testCase.ServerUrl + "/" + testCase.ArchiveName + "/shortestTrip";
             disp(url);
             data = mps.json.encoderequest({x,y});
-            options = weboptions("MediaType","application/json");
+            options = weboptions("MediaType","application/json","Timeout",10);
             response = webwrite(url, data, options);
             trip = reshape(response.lhs,1,[]);
             testCase.verifyEqual(trip,1:4);
