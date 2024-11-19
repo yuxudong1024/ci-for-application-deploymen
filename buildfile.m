@@ -137,8 +137,11 @@ function report = publishDiffToMain(fileName, outputFolder)
     fileName = strrep(fileName, '\', '/');
     mainFile = strrep(mainFile, '\', '/');
     % Build git command to get file from main
-    gitCommand = sprintf('git --no-pager show origin/main:%s > %s', fileName, mainFile);    
-    [status, result] = system(gitCommand);
+    gitFetchMainCommand = "git fetch origin main:refs/remotes/origin/main";   
+    [status, result] = system(gitFetchMainCommand);
+    assert(status==0, result);
+    gitSaveMainCommand = sprintf('git --no-pager show origin/main:%s > %s', fileName, mainFile);    
+    [status, result] = system(gitSaveMainCommand);
     assert(status==0, result);
     comp = visdiff(mainFile, fileName);
     report = publish(comp,'Format','html','OutputFolder',outputFolder);
