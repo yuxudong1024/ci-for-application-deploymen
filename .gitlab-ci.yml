@@ -22,7 +22,7 @@ unit-test-job:
         coverage_format: cobertura
         path: code-coverage/cobertura-coverage.xml
 
-deploy-job:
+pages:
   stage: deploy
   tags:
     - on-prem
@@ -42,4 +42,4 @@ test-endpoint:
     - on-prem
   script:
     - echo "Run integration test..."
-    - mw -using Bmain matlab -softwareopengl -batch "setenv('MPS_ARCHIVE_NAME',['shortestTrip'+upper(getenv('GITLAB_USER_LOGIN'))]); buildtool integrationTest;"
+    - mw -using Bmain matlab -softwareopengl -batch "setenv('MPS_ARCHIVE_NAME',['shortestTrip'+upper(getenv('GITLAB_USER_LOGIN'))]); disp(getenv('MPS_ARCHIVE_NAME')); buildtool integrationTest;"
