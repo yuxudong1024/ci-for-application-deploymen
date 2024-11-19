@@ -38,7 +38,8 @@
   </div>
 
   <script>
-    let server="https://ipws-mps.mathworks.com/shortestTrip";
+    let apiEndpoint = '__API_ENDPOINT__';
+
     let xValues = [];
     let yValues = [];
     // Get canvas element
@@ -101,7 +102,7 @@
         nargout: 1
       };
       
-      fetch(server + "/shortestTrip", {
+      fetch(apiEndpoint, {
         method: "POST",
         body: JSON.stringify(_data),
         headers: { "Content-type": "application/json" }
