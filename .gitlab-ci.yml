@@ -1,6 +1,5 @@
 stages:
   - test
-  - coverage
   - deploy
   - integration-test
 
@@ -12,8 +11,7 @@ unit-test-job:
     - echo "Running unit tests..."
     #- Invoke-WebRequest https://ssd.mathworks.com/supportfiles/ci/matlab-batch/v1/win64/matlab-batch.exe -OutFile matlab-batch.exe
     #- ./matlab-batch -licenseToken "cbollige@mathworks.com|cbolligeAll|$MLM_LICENSE_TOKEN" "ver;"
-    - mw -using Bmain matlab -softwareopengl -batch "openProject(pwd); buildtool test;"
-    - mw -using Bmain matlab -softwareopengl -batch "load(fullfile('code-coverage','coverage.mat')); disp(coverage);"
+    - mw -using Bmain matlab -softwareopengl -batch "buildtool test;"
   artifacts:
     paths:
       - test-reports/
@@ -23,50 +21,25 @@ unit-test-job:
       coverage_report:
         coverage_format: cobertura
         path: code-coverage/cobertura-coverage.xml
-  coverage: '/Statement: \d+/\d+ \((\d+\.\d+)%\)/'
-
-deploy-job:
-  stage: deploy
-  tags:
-    - on-prem
-  script:
-    - echo "Deploying ctf and web app..."
-    - mw -using Bmain matlab -softwareopengl -batch "openProject(pwd); buildtool deployCtf deployWebApp;"
 
 pages:
   stage: deploy
   tags:
-    - linux
+    - on-prem
   script:
-    - mkdir public
-    - cp source/index.html public/
-    - cp -r code-coverage/ public/
-    - cp -r test-reports/ public/
+    - echo "Deploying test and coverage results..."
+    - mw -using Bmain matlab -softwareopengl -batch "buildtool displayCoverage copyTestReports;"
+    - echo "Deploying ctf and web app..."
+    - mw -using Bmain matlab -softwareopengl -batch "mpsArchiveName=['shortestTrip',upper(getenv('GITLAB_USER_LOGIN'))]; disp(mpsArchiveName); mwaArchiveName=['TravelingSalesman',upper(getenv('GITLAB_USER_LOGIN'))]; disp(mwaArchiveName); buildtool deployFrontend(mpsArchiveName) deployMPSArchive(mpsArchiveName) deployWebApp(mwaArchiveName);"
+  coverage: '/Statement: \d+/\d+ \((\d+\.\d+)%\)/'
   artifacts:
     paths:
       - public
-  only:
-    - main
 
 test-endpoint:
   stage: integration-test
   tags:
-    - docker
-  image: curlimages/curl:latest
+    - on-prem
   script:
-    - |
-      # Make a request and capture the response
-      RESPONSE=$(curl --silent --location 'https://ipws-mps.mathworks.com/shortestTrip/shortestTrip' --header 'Content-Type: application/json' --data ' {"rhs":[[1,1,2,2],[1,2,2,1]],"nargout":1,"outputFormat":{"mode":"small","nanType":"string"}}')
-
-      # Define the expected response as a string
-      EXPECTED_RESPONSE='{"lhs":[[[1,2,3,4]]]}'
-
-      # Check if the actual response matches the expected response; string comparison is enough in our case
-      if [ "$RESPONSE" = "$EXPECTED_RESPONSE" ]; then
-        echo "Test passed: Received expected response"
-      else
-        echo "Test failed: Unexpected response"
-        echo "Expected: $EXPECTED_RESPONSE"
-        echo "Received: $RESPONSE"
-        exit 1
-      fi
+    - echo "Run integration test..."
+    - mw -using Bmain matlab -softwareopengl -batch "setenv('MPS_ARCHIVE_NAME',['shortestTrip',upper(getenv('GITLAB_USER_LOGIN'))]); disp(getenv('MPS_ARCHIVE_NAME')); buildtool integrationTest;"
