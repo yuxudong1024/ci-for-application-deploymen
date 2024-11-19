@@ -47,6 +47,8 @@ visdiff:
   artifacts:
     paths:
       - visdiff/*
+  except:
+    - main
 
 test-endpoint:
   stage: integration-test
