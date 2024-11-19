@@ -42,4 +42,4 @@ test-endpoint:
     - on-prem
   script:
     - echo "Run integration test..."
-    - mw -using Bmain matlab -softwareopengl -batch "setenv('MPS_ARCHIVE_NAME',['shortestTrip'+upper(getenv('GITLAB_USER_LOGIN'))]); disp(getenv('MPS_ARCHIVE_NAME')); buildtool integrationTest;"
+    - mw -using Bmain matlab -softwareopengl -batch "setenv('MPS_ARCHIVE_NAME',['shortestTrip',upper(getenv('GITLAB_USER_LOGIN'))]); disp(getenv('MPS_ARCHIVE_NAME')); buildtool integrationTest;"
