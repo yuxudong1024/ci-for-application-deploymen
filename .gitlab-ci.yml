@@ -30,7 +30,7 @@ deploy-job:
     - echo "Deploying test and coverage results..."
     - mw -using Bmain matlab -softwareopengl -batch "buildtool displayCoverage copyTestReports;"
     - echo "Deploying ctf and web app..."
-    - mw -using Bmain matlab -softwareopengl -batch 'mpsArchiveName="shortestPath"+upper(getenv("GITLAB_USER_LOGIN")); disp(mpsArchiveName); mwaArchiveName="TravelingSalesman"+upper(getenv("GITLAB_USER_LOGIN"); disp(mwaArchiveName); buildtool deployFrontend(mpsArchiveName) deployMPSArchive(mpsArchiveName) deployWebApp(mwaArchiveName);'
+    - mw -using Bmain matlab -softwareopengl -batch "mpsArchiveName=['shortestPath',upper(getenv('GITLAB_USER_LOGIN'))]; disp(mpsArchiveName); mwaArchiveName=['TravelingSalesman',upper(getenv('GITLAB_USER_LOGIN')]; disp(mwaArchiveName); buildtool deployFrontend(mpsArchiveName) deployMPSArchive(mpsArchiveName) deployWebApp(mwaArchiveName);"
   coverage: '/Statement: \d+/\d+ \((\d+\.\d+)%\)/'
   #only:
   #  - main
@@ -41,6 +41,6 @@ test-endpoint:
     - on-prem
   script:
     - echo "Run integration test..."
-    - mw -using Bmain matlab -softwareopengl -batch 'setenv("MPS_ARCHIVE_NAME","shortestPath"+upper(getenv("GITLAB_USER_LOGIN"))); buildtool integrationTest;'
+    - mw -using Bmain matlab -softwareopengl -batch "setenv('MPS_ARCHIVE_NAME',['shortestPath'+upper(getenv('GITLAB_USER_LOGIN'))]); buildtool integrationTest;"
   only:
     - main
