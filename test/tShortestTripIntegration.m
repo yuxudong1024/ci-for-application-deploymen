@@ -1,4 +1,4 @@
-classdef tShortestTripIntegration < matlabtest.compiler.TestCase
+classdef tShortestTripIntegration < matlab.unittest.TestCase
     properties
         ServerUrl = "https://ipws-mps.mathworks.com";
         ArchiveName = "shortestTrip";
