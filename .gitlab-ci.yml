@@ -11,7 +11,7 @@ unit-test-job:
     - echo "Running unit tests..."
     #- Invoke-WebRequest https://ssd.mathworks.com/supportfiles/ci/matlab-batch/v1/win64/matlab-batch.exe -OutFile matlab-batch.exe
     #- ./matlab-batch -licenseToken "cbollige@mathworks.com|cbolligeAll|$MLM_LICENSE_TOKEN" "ver;"
-    - mw -using Bmain matlab -softwareopengl -batch "buildtool check test;"
+    - mw -using BR2024bd matlab -softwareopengl -batch "buildtool check test;"
   artifacts:
     paths:
       - test-reports/
@@ -28,9 +28,9 @@ pages:
     - on-prem
   script:
     - echo "Deploying test and coverage results..."
-    - mw -using Bmain matlab -softwareopengl -batch "buildtool displayCoverage copyTestReports;"
+    - mw -using BR2024bd matlab -softwareopengl -batch "buildtool displayCoverage copyTestReports;"
     - echo "Deploying ctf and web app..."
-    - mw -using Bmain matlab -softwareopengl -batch "mpsArchiveName=['shortestTrip',upper(getenv('GITLAB_USER_LOGIN'))]; disp(mpsArchiveName); mwaArchiveName=['TravelingSalesman',upper(getenv('GITLAB_USER_LOGIN'))]; disp(mwaArchiveName); buildtool deployFrontend(mpsArchiveName) deployMPSArchive(mpsArchiveName) deployWebApp(mwaArchiveName);"
+    - mw -using BR2024bd matlab -softwareopengl -batch "mpsArchiveName=['shortestTrip',upper(getenv('GITLAB_USER_LOGIN'))]; disp(mpsArchiveName); mwaArchiveName=['TravelingSalesman',upper(getenv('GITLAB_USER_LOGIN'))]; disp(mwaArchiveName); buildtool deployFrontend(mpsArchiveName) deployMPSArchive(mpsArchiveName) deployWebApp(mwaArchiveName);"
   coverage: '/Statement: \d+/\d+ \((\d+\.\d+)%\)/'
   artifacts:
     paths:
@@ -42,7 +42,7 @@ visdiff:
     - on-prem
   script:
     - echo "Comparing current version of MATLAB app to status in main branch..."
-    - mw -using Bmain matlab -softwareopengl -batch "buildtool publishAppDiffToMain('visdiff');"
+    - mw -using BR2024bd matlab -softwareopengl -batch "buildtool publishAppDiffToMain('visdiff');"
     - echo "Report published as artifact in visdiff folder"
   artifacts:
     paths:
@@ -56,4 +56,4 @@ test-endpoint:
     - on-prem
   script:
     - echo "Run integration test..."
-    - mw -using Bmain matlab -softwareopengl -batch "setenv('MPS_ARCHIVE_NAME',['shortestTrip',upper(getenv('GITLAB_USER_LOGIN'))]); disp(getenv('MPS_ARCHIVE_NAME')); buildtool integrationTest;"
+    - mw -using BR2024bd matlab -softwareopengl -batch "setenv('MPS_ARCHIVE_NAME',['shortestTrip',upper(getenv('GITLAB_USER_LOGIN'))]); disp(getenv('MPS_ARCHIVE_NAME')); buildtool integrationTest;"
