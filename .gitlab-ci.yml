@@ -13,6 +13,7 @@ unit-test-job:
     #- ./matlab-batch -licenseToken "cbollige@mathworks.com|cbolligeAll|$MLM_LICENSE_TOKEN" "ver;"
     - mw -using BR2024bd matlab -softwareopengl -batch "buildtool check test;"
   artifacts:
+    when: always
     paths:
       - test-reports/
       - code-coverage/
