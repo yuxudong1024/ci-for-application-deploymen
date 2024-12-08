@@ -33,6 +33,8 @@ jobs:
           products: |
             MATLAB
             MATLAB_Test
+            MATLAB_Optimization_Toolbox
+            MATLAB_Global_Optimization_Toolbox
             MATLAB_Compiler
             MATLAB_Compiler_SDK
             Parallel_Computing_Toolbox
