@@ -32,8 +32,6 @@ jobs:
           cache: true
           products: |
             MATLAB
-            MATLAB_Coder
-            Simulink_Coder
             MATLAB_Compiler
             MATLAB_Compiler_SDK
             Parallel_Computing_Toolbox
@@ -48,19 +46,19 @@ jobs:
         uses: matlab-actions/run-build@v2
         with:
           tasks: test
-          use-parallel: true
-          test-results-junit: test-reports/junit.html
-          code-coverage-cobertura: code-coverage\cobertura-coverage.html
+#          use-parallel: true
+#          test-results-junit: test-reports/junit.html
+#          code-coverage-cobertura: code-coverage\cobertura-coverage.html
 
-      - name: Junit Test Summary
-        uses: test-summary/action@v2
-        with:
-           paths: "test-reports/junit.html"
+      #- name: Junit Test Summary
+      #  uses: test-summary/action@v2
+      #  with:
+      #     paths: "test-reports/junit.html"
 
-      - name: Publish Test Results
-        uses: EnricoMi/publish-unit-test-result-action@v1
-        with:
-           files: "test-reports/junit.html"
+      #- name: Publish Test Results
+      #  uses: EnricoMi/publish-unit-test-result-action@v1
+      #  with:
+      #     files: "test-reports/junit.html"
  
  #     - name: Run un ${{ matrix.os }} with script
  #       uses: matlab-actions/run-command@v2
