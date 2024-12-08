@@ -32,25 +32,12 @@ jobs:
           cache: true
           products: |
             MATLAB
-            Simulink
-            Stateflow
-            Control_System_Toolbox
             MATLAB_Coder
             Simulink_Coder
-            Embedded_Coder
-            Simulink_Check
-            Simulink_Coverage
-            Simulink_Test
             MATLAB_Compiler
             MATLAB_Compiler_SDK
-            Simulink_Compiler
-            Simscape
-            Simscape_Electrical
             Parallel_Computing_Toolbox
             MATLAB_Report_Generator
-            Simulink_Report_Generator
-            MATLAB_Support_Package_for_Arduino_Hardware
-            Simulink_Support_Package_for_Arduino_Hardware
 
       - name: Start display server (required for building doc in MATLAB)
         run: |
@@ -58,21 +45,22 @@ jobs:
           echo "DISPLAY=:99" >> $GITHUB_ENV
  
       - name: Run ${{ matrix.os }} build to run tests on it
-        uses: matlab-actions/run-tests@v2
+        uses: matlab-actions/run-build@v2
         with:
+          tasks: test
           use-parallel: true
-          test-results-junit: test-results/results.xml
-          code-coverage-cobertura: code-coverage/coverage.xml
+          test-results-junit: test-reports/junit.html
+          code-coverage-cobertura: code-coverage\cobertura-coverage.html
 
       - name: Junit Test Summary
         uses: test-summary/action@v2
         with:
-           paths: "test-results/results.xml"
+           paths: "test-reports/junit.html"
 
       - name: Publish Test Results
         uses: EnricoMi/publish-unit-test-result-action@v1
         with:
-           files: "test-results/results.xml"
+           files: "test-reports/junit.html"
  
  #     - name: Run un ${{ matrix.os }} with script
  #       uses: matlab-actions/run-command@v2
