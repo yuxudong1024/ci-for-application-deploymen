@@ -49,9 +49,9 @@ jobs:
         uses: matlab-actions/run-build@v2
         with:
           tasks: test
-          use-parallel: true
-          test-results-junit: test-reports/junit.xml
-          code-coverage-cobertura: code-coverage\cobertura-coverage.xml
+          #use-parallel: true
+          #test-results-junit: test-reports/junit.xml
+          #code-coverage-cobertura: code-coverage\cobertura-coverage.xml
 
       - name: Junit Test Summary
         uses: test-summary/action@v2
