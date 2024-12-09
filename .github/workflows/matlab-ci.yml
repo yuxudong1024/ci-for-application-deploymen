@@ -58,10 +58,10 @@ jobs:
         with:
            paths: "test-reports/junit.xml"
 
-      - name: Publish Test Results
-        uses: EnricoMi/publish-unit-test-result-action@v1
-        with:
-           files: "test-reports/junit.html"
+#      - name: Publish Test Results
+#        uses: EnricoMi/publish-unit-test-result-action@v1
+#        with:
+#           files: "test-reports/junit.html"
  
  #     - name: Run un ${{ matrix.os }} with script
  #       uses: matlab-actions/run-command@v2
