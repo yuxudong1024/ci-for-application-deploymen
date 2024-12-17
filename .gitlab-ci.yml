@@ -1,49 +1,57 @@
+variables:
+  BUILD_IMAGE: "false"
+  IMAGE_NAME: "matlab-r2024b"
+  IMAGE_TAG: "1.0"
+
 stages:
+  - prepare
   - test
   - deploy
-  - integration-test
+  - post-deploy
+
+prepare-docker-image:
+  stage: prepare
+  tags:
+    - docker
+  script:
+    - DOCKER_IMAGE="$CI_REGISTRY_IMAGE/$IMAGE_NAME:$IMAGE_TAG"
+    - echo "Building and pushing Docker image..."
+    - docker build -t $DOCKER_IMAGE .
+    - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin "$CI_REGISTRY_IMAGE"
+    - docker push $DOCKER_IMAGE
+  rules:
+    - if: '$BUILD_IMAGE == "true"'
 
 unit-test-job:
   stage: test
   tags:
-    - on-prem
+    - docker-exec
+  image: 
+    name: $CI_REGISTRY_IMAGE/$IMAGE_NAME:$IMAGE_TAG
   script:
     - echo "Running unit tests..."
-    #- Invoke-WebRequest https://ssd.mathworks.com/supportfiles/ci/matlab-batch/v1/win64/matlab-batch.exe -OutFile matlab-batch.exe
-    #- ./matlab-batch -licenseToken "cbollige@mathworks.com|cbolligeAll|$MLM_LICENSE_TOKEN" "ver;"
-    - mw -using BR2024bd matlab -softwareopengl -batch "buildtool check test;"
+    - matlab-batch "buildtool check test -verbosity Verbose"
+  coverage: '/Statement: \d+/\d+ \((\d+\.\d+)%\)/'
   artifacts:
     when: always
     paths:
-      - test-reports/
-      - code-coverage/
+      - public
     reports:
-      junit: test-reports/junit.xml
+      junit: public/test-reports/junit.xml
       coverage_report:
         coverage_format: cobertura
-        path: code-coverage/cobertura-coverage.xml
+        path: public/code-coverage/cobertura-coverage.xml
 
-pages:
-  stage: deploy
+visdiff:
+  stage: test
   tags:
-    - on-prem
-  script:
-    - echo "Deploying test and coverage results..."
-    - mw -using BR2024bd matlab -softwareopengl -batch "buildtool displayCoverage copyTestReports;"
-    - echo "Deploying ctf and web app..."
-    - mw -using BR2024bd matlab -softwareopengl -batch "mpsArchiveName=['shortestTrip',upper(getenv('GITLAB_USER_LOGIN'))]; disp(mpsArchiveName); mwaArchiveName=['TravelingSalesman',upper(getenv('GITLAB_USER_LOGIN'))]; disp(mwaArchiveName); buildtool deployFrontend(mpsArchiveName) deployMPSArchive(mpsArchiveName) deployWebApp(mwaArchiveName);"
-  coverage: '/Statement: \d+/\d+ \((\d+\.\d+)%\)/'
-  artifacts:
-    paths:
-      - public
-
-visdiff:   
-  stage: deploy
-  tags:
-    - on-prem
+    - docker-exec
+  image: 
+    name: $CI_REGISTRY_IMAGE/$IMAGE_NAME:$IMAGE_TAG
   script:
     - echo "Comparing current version of MATLAB app to status in main branch..."
-    - mw -using BR2024bd matlab -softwareopengl -batch "buildtool publishAppDiffToMain('visdiff');"
+    - git config --global --add safe.directory $CI_PROJECT_DIR
+    - matlab-batch "buildtool publishAppDiffToMain('visdiff') -verbosity Verbose"
     - echo "Report published as artifact in visdiff folder"
   artifacts:
     paths:
@@ -51,10 +59,16 @@ visdiff:
   except:
     - main
 
-test-endpoint:
-  stage: integration-test
+pages:
+  stage: deploy
   tags:
-    - on-prem
+    - docker-exec
+  image: 
+    name: $CI_REGISTRY_IMAGE/$IMAGE_NAME:$IMAGE_TAG
   script:
-    - echo "Run integration test..."
-    - mw -using BR2024bd matlab -softwareopengl -batch "setenv('MPS_ARCHIVE_NAME',['shortestTrip',upper(getenv('GITLAB_USER_LOGIN'))]); disp(getenv('MPS_ARCHIVE_NAME')); buildtool integrationTest;"
+    - echo "Deploying ctf and web app..."
+    - matlab-batch "mpsArchiveName=['shortestTrip',upper(getenv('GITLAB_USER_LOGIN'))]; disp(mpsArchiveName); mwaArchiveName=['TravelingSalesman',upper(getenv('GITLAB_USER_LOGIN'))]; disp(mwaArchiveName); buildtool deployFrontend(mpsArchiveName) deployMPSArchive(mpsArchiveName) deployWebApp(mwaArchiveName) integrationTest -verbosity Verbose"
+  artifacts:
+    when: always
+    paths:
+      - public

@@ -2,7 +2,7 @@ function plan = buildfile
     import matlab.buildtool.tasks.CodeIssuesTask
     import matlab.buildtool.tasks.TestTask
     import matlab.buildtool.io.FileCollection
-    
+
     % Create a plan from task functions
     plan = buildplan(localfunctions);
     
@@ -10,45 +10,46 @@ function plan = buildfile
     plan("check") = CodeIssuesTask;
     
     % Add a task to run tests
-    plan("test") = TestTask(SourceFiles=FileCollection.fromPaths("source"), ...
-        TestResults=["test-reports/junit.xml","test-reports/junit.html"], ...
-        CodeCoverageResults=["code-coverage/cobertura-coverage.xml", ...
-            "code-coverage/cobertura-coverage.html", "code-coverage/coverage.mat"], ...
-        Tag=["Unit","App"]);
+    plan("test") = TestTask(SourceFiles="source", ...
+        TestResults=[ ...
+            fullfile(getOutputFolder(),"test-reports","junit.xml"), ...
+            fullfile(getOutputFolder(),"test-reports","junit.html")], ...
+        CodeCoverageResults=[ ...
+            fullfile(getOutputFolder(),"code-coverage","cobertura-coverage.xml"), ...
+            fullfile(getOutputFolder(),"code-coverage","cobertura-coverage.html"), ...
+            fullfile(getOutputFolder(),"code-coverage","coverage.mat")], ...
+        Tag=["Unit","App","Equivalence"]);
+    plan("test").Actions(end+1) = @displayCoverage;
     
-    plan("integrationTest") = TestTask(Tag="Integration");
-    
-    % Make the "test" task the default task in the plan
-    plan.DefaultTasks = ["check" "test" "displayCoverage" "deployFrontend" "deployMPSArchive" "deployWebApp" "integrationTest"];
-    
-    % Dependencies
-    % plan("displayCoverage").Dependencies = "test";
-    % plan("copyTestReports").Dependencies = "test";
+    plan("integrationTest") = TestTask(Tag="Integration", Description="Run integration tests");
+
+    % Define default tasks
+    plan.DefaultTasks = ["check" "test"];
 end
 
-function copyTestReportsTask(~, outputFolder)
-    % Copy test reports to outputFolder
+function outputFolder = getOutputFolder()
+    if isempty(getenv("BUILDTOOL_OUTDIR"))
+        defineOutputFolderTask();
+    end
+    outputFolder = getenv("BUILDTOOL_OUTDIR");
+end
+
+function defineOutputFolderTask(~, outputFolder)
+    % Define output folder for build reports
     arguments
         ~ 
-        outputFolder = "public";
+        outputFolder = "public"
     end
-    codeCoverageFolder = fullfile(outputFolder,"code-coverage");
-    if ~exist(codeCoverageFolder, 'dir')
-        [status, message] = mkdir(codeCoverageFolder);
+    if ~exist(outputFolder, 'dir')
+        [status, message] = mkdir(outputFolder);
         assert(status==1, message);
     end
-    testReportFolder = fullfile(outputFolder,"test-reports");
-    if ~exist(testReportFolder, 'dir')
-        [status, message] = mkdir(testReportFolder);
-        assert(status==1, message);
-    end
-    copyfile("code-coverage", codeCoverageFolder);
-    copyfile("test-reports", testReportFolder);
+    setenv("BUILDTOOL_OUTDIR", outputFolder);
 end
 
-function displayCoverageTask(~)
+function displayCoverage(~)
     % Display test coverage
-    s = load(fullfile("code-coverage", "coverage.mat"));
+    s = load(fullfile(getOutputFolder(),"code-coverage", "coverage.mat"));
     disp(s.coverage);
 end
 
@@ -90,7 +91,7 @@ function deployFrontendTask(~, archiveName, server, outputFolder)
         ~ 
         archiveName = "shortestTrip";
         server = "https://ipws-mps.mathworks.com";
-        outputFolder = "public";
+        outputFolder = getOutputFolder();
     end
     apiEndpoint = server + "/" + archiveName + "/shortestTrip";
     fileContent = fileread(fullfile("source","index_template.html"));
@@ -114,19 +115,19 @@ function deployFrontendTask(~, archiveName, server, outputFolder)
     disp(outputFilePath);
 end
 
-function publishAppDiffToMainTask(~, outputFolder)
+function publishAppDiffToMainTask(~, visDiffFolder)
     % Publish difference of TravelingSalesman app to status in main branch
     arguments
         ~
-        outputFolder = "visdiff";
+        visDiffFolder = "visdiff";
     end
-    if ~exist(outputFolder, 'dir')
-        [status, message] = mkdir(outputFolder);
+    if ~exist(visDiffFolder, 'dir')
+        [status, message] = mkdir(visDiffFolder);
         assert(status==1, message);
     end
 
     appFile = fullfile("source","TravelingSalesman.mlapp");
-    report = publishDiffToMain(appFile, outputFolder);
+    report = publishDiffToMain(appFile, visDiffFolder);
     disp(report);
 end
 
