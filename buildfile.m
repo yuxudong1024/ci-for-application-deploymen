@@ -21,7 +21,7 @@ function plan = buildfile
             fullfile(getOutputFolder(),"code-coverage","cobertura-coverage.html"), ...
             fullfile(getOutputFolder(),"code-coverage","coverage.mat")], ...
         Tag=["Unit","App","Equivalence"]);
-    plan("test").Actions(end+1) = @displayCoverage;
+    plan("test").Actions(end+1) = @processTestResults;
     
     plan("integrationTest") = TestTask(Tag="Integration", Description="Run integration tests");
 
@@ -49,10 +49,12 @@ function defineOutputFolderTask(~, outputFolder)
     setenv("BUILDTOOL_OUTDIR", outputFolder);
 end
 
-function displayCoverage(~)
+function processTestResults(~)
     % Display test coverage
     s = load(fullfile(getOutputFolder(),"code-coverage", "coverage.mat"));
     disp(s.coverage);
+    % Generate a standalone test report
+    generateStandaloneReport(s.coverage,fullfile(getOutputFolder(),"code-coverage","standalone.html"))
 end
 
 function deployWebAppTask(~,archiveName,destination)

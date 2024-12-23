@@ -30,6 +30,7 @@ unit-test-job:
   script:
     - echo "Running unit tests..."
     - matlab-batch "buildtool check test -verbosity Verbose"
+    - if (( $CI_BRANCH_NAME != "main" )); then mkdir -p "public/$CI_BRANCH_NAME"; cp public/code-coverage/standalone.html "public/$CI_BRANCH_NAME/standalone.html"; fi
   coverage: '/Statement: \d+/\d+ \((\d+\.\d+)%\)/'
   artifacts:
     when: always
