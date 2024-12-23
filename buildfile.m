@@ -6,6 +6,9 @@ function plan = buildfile
     % Create a plan from task functions
     plan = buildplan(localfunctions);
     
+    % Enable cleaning derived build outputs
+    plan("clean") = CleanTask;
+
     % Add a task to identify code issues
     plan("check") = CodeIssuesTask;
     
