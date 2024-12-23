@@ -7,6 +7,7 @@ stages:
   - prepare
   - test
   - deploy
+  - publish
 
 prepare-docker-image:
   stage: prepare
@@ -29,8 +30,8 @@ unit-test-job:
     name: $CI_REGISTRY_IMAGE/$IMAGE_NAME:$IMAGE_TAG
   script:
     - echo "Running unit tests..."
-    - matlab-batch "buildtool check test -verbosity Verbose"
-    - if (( $CI_BRANCH_NAME != "main" )); then mkdir -p "public/$CI_BRANCH_NAME"; cp public/code-coverage/standalone.html "public/$CI_BRANCH_NAME/standalone.html"; fi
+    - mkdir -p public/branches/$CI_BRANCH_NAME/$CI_COMMIT_SHORT_SHA
+    - matlab-batch "buildtool defineOutputFolder(public/branches/$CI_BRANCH_NAME/$CI_COMMIT_SHORT_SHA) check test -verbosity Verbose"
   coverage: '/Statement: \d+/\d+ \((\d+\.\d+)%\)/'
   artifacts:
     when: always
@@ -60,7 +61,7 @@ visdiff:
   except:
     - main
 
-pages:
+deploy-job:
   stage: deploy
   tags:
     - docker-exec
@@ -73,5 +74,15 @@ pages:
     when: always
     paths:
       - public
-  only:
-    - main
+  #only:
+  #  - main
+
+pages:
+  stage: publish
+  script:
+    - echo "Creating Gitlab pages"
+    - if (( $CI_BRANCH_NAME != "main" )); cp -r public/branches/$CI_BRANCH_NAME/$CI_COMMIT_SHORT_SHA/* public; fi
+    - mkdir -p "public/$CI_BRANCH_NAME"; cp public/code-coverage/standalone.html "public/$CI_BRANCH_NAME/standalone.html";
+  artifacts:
+    paths:
+      - public
