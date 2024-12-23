@@ -1,3 +1,6 @@
+[![coverage](https://insidelabs-git.mathworks.com/cbollige/matlab-ci-workshop-sko-2025/badges/main/coverage.svg)](https://cbollige.insidelabspages.mathworks.com/matlab-ci-workshop-sko-2025/code-coverage/cobertura-coverage.html)
+[![pipeline](https://insidelabs-git.mathworks.com/cbollige/matlab-ci-workshop-sko-2025/badges/main/pipeline.svg)](https://insidelabs-git.mathworks.com/cbollige/matlab-ci-workshop-sko-2025/-/commits/main)
+
 # MATLAB DevOps
 
 This demo demonstrates the creation of a CI/CD pipeline for a MATLAB application, 

@@ -52,6 +52,7 @@ visdiff:
     - git config --global --add safe.directory $CI_PROJECT_DIR
     - matlab-batch "buildtool publishAppDiffToMain('visdiff') -verbosity Verbose"
     - echo "Report published as artifact in visdiff folder"
+  dependencies: [] # Prevent downloading of artifacts from previous jobs
   artifacts:
     paths:
       - visdiff/*
@@ -71,3 +72,5 @@ pages:
     when: always
     paths:
       - public
+  only:
+    - main
