@@ -31,7 +31,7 @@ unit-test-job:
   script:
     - echo "Running unit tests..."
     - mkdir -p public/branches/$CI_BRANCH_NAME/$CI_COMMIT_SHORT_SHA
-    - matlab-batch "buildtool defineOutputFolder(public/branches/$CI_BRANCH_NAME/$CI_COMMIT_SHORT_SHA) check test -verbosity Verbose"
+    - matlab-batch "buildtool check test -verbosity Verbose"
   coverage: '/Statement: \d+/\d+ \((\d+\.\d+)%\)/'
   artifacts:
     when: always
