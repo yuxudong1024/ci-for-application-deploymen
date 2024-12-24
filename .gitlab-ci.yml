@@ -79,6 +79,8 @@ deploy-job:
 
 pages:
   stage: publish
+  tags:
+    - linux
   script:
     - echo "Creating Gitlab pages"
     - if (( $CI_BRANCH_NAME != "main" )); cp -r public/branches/$CI_BRANCH_NAME/$CI_COMMIT_SHORT_SHA/* public; fi
