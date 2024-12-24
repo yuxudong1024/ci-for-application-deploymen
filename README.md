@@ -1,5 +1,7 @@
-[![coverage](https://insidelabs-git.mathworks.com/cbollige/matlab-ci-workshop-sko-2025/badges/main/coverage.svg)](https://cbollige.insidelabspages.mathworks.com/matlab-ci-workshop-sko-2025/code-coverage/cobertura-coverage.html)
+[![coverage](https://cbollige.insidelabspages.mathworks.com/matlab-ci-workshop-sko-2025/coverageBadge.svg)](https://cbollige.insidelabspages.mathworks.com/matlab-ci-workshop-sko-2025/code-coverage/cobertura-coverage.html)
+[![tests](https://cbollige.insidelabspages.mathworks.com/matlab-ci-workshop-sko-2025/testBadge.svg)](https://cbollige.insidelabspages.mathworks.com/matlab-ci-workshop-sko-2025/test-reports/junit.html)
 [![pipeline](https://insidelabs-git.mathworks.com/cbollige/matlab-ci-workshop-sko-2025/badges/main/pipeline.svg)](https://insidelabs-git.mathworks.com/cbollige/matlab-ci-workshop-sko-2025/-/commits/main)
+![Static Badge](https://img.shields.io/badge/PFT-Workshop-blue)
 
 # MATLAB DevOps
 

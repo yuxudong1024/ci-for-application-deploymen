@@ -15,13 +15,15 @@ function plan = buildfile
     plan("test") = TestTask(SourceFiles="source", ...
         TestResults=[ ...
             fullfile(getOutputFolder(),"test-reports","junit.xml"), ...
-            fullfile(getOutputFolder(),"test-reports","junit.html")], ...
+            fullfile(getOutputFolder(),"test-reports","junit.html"), ...
+            fullfile(getOutputFolder(),"test-reports","junit.mat")], ...
         CodeCoverageResults=[ ...
             fullfile(getOutputFolder(),"code-coverage","cobertura-coverage.xml"), ...
             fullfile(getOutputFolder(),"code-coverage","cobertura-coverage.html"), ...
             fullfile(getOutputFolder(),"code-coverage","coverage.mat")], ...
         Tag=["Unit","App","Equivalence"]);
     plan("test").Actions(end+1) = @processTestResults;
+    plan("test").Actions(end+1) = @processCoverageResults;
     
     plan("integrationTest") = TestTask(Tag="Integration", Description="Run integration tests");
 
@@ -50,11 +52,18 @@ function defineOutputFolderTask(~, outputFolder)
 end
 
 function processTestResults(~)
-    % Display test coverage
-    s = load(fullfile(getOutputFolder(),"code-coverage", "coverage.mat"));
-    disp(s.coverage);
-    % Generate a standalone test report
-    generateStandaloneReport(s.coverage,fullfile(getOutputFolder(),"code-coverage","standalone.html"))
+    testResults = load(fullfile(getOutputFolder(),"test-reports","junit.mat"));
+    testResults = testResults.result;
+    disp(testResults);
+    generateTestBadge(testResults);  
+end
+
+function processCoverageResults(~)
+    coverageResults = load(fullfile(getOutputFolder(),"code-coverage", "coverage.mat"));
+    coverageResults = coverageResults.coverage;
+    disp(coverageResults);
+    generateStandaloneReport(coverageResults,fullfile(getOutputFolder(),"code-coverage","standalone.html"));
+    generateCoverageBadge(coverageResults);    
 end
 
 function deployWebAppTask(~,archiveName,destination)
@@ -151,4 +160,45 @@ function report = publishDiffToMain(fileName, outputFolder)
     comp = visdiff(mainFile, fileName);
     report = publish(comp,'Format','html','OutputFolder',outputFolder);
     delete(mainFile);
+end
+
+function generateTestBadge(results)
+    % See https://shields.io/badges/static-badge
+    numPassed = sum([results.Passed]);
+    numFailed = sum([results.Failed]);
+    numIncomplete = sum([results.Incomplete]);
+    color = "brightgreen";
+    if (numIncomplete>0)
+        color = "orange";
+    end
+    if (numFailed>0)
+        color = "red";
+    end
+    badgeContent = sprintf("%s-%i/%i-%s", ...
+        "Unit%20Test", numPassed, numPassed + numFailed + numIncomplete, color);
+    websave(fullfile(getOutputFolder(),"testBadge.svg"), ...
+        sprintf("%s/%s", "https://img.shields.io/badge", badgeContent));
+end
+
+function generateCoverageBadge(results)
+    % See https://shields.io/badges/static-badge
+    statementCov = sum(coverageSummary(results,"statement"));
+    percentage = 100*statementCov(1)/statementCov(2);
+    color = "brightgreen";
+    if (percentage < 75)
+        color = 'red';
+    elseif (percentage < 80)
+        color = 'orange';
+    elseif (percentage < 85)
+        color = 'yellow';
+    elseif (percentage < 90)
+        color = 'yellowgreen';
+    elseif (percentage < 95)
+        color = 'green';
+    end
+
+    badgeContent = sprintf("%s-%.2f%-%s", ...
+        "Coverage", percentage, color);
+    websave(fullfile(getOutputFolder(),"coverageBadge.svg"), ...
+        sprintf("%s/%s", "https://img.shields.io/badge", badgeContent));
 end
