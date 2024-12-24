@@ -21,7 +21,7 @@ function plan = buildfile
             fullfile(getOutputFolder(),"code-coverage","cobertura-coverage.xml"), ...
             fullfile(getOutputFolder(),"code-coverage","cobertura-coverage.html"), ...
             fullfile(getOutputFolder(),"code-coverage","coverage.mat")], ...
-        Tag=["Unit","App","Equivalence"]);
+        Tag=["Unit"]);%,"App","Equivalence"]);
     plan("test").Actions(end+1) = @processTestResults;
     plan("test").Actions(end+1) = @processCoverageResults;
     
@@ -197,8 +197,8 @@ function generateCoverageBadge(results)
         color = 'green';
     end
 
-    badgeContent = sprintf("%s-%.2f%-%s", ...
+    badgeContent = sprintf("%s-%.2f%%25-%s", ...
         "Coverage", percentage, color);
-    websave(fullfile(getOutputFolder(),"coverageBadge.svg"), ...
-        sprintf("%s/%s", "https://img.shields.io/badge", badgeContent));
+    url = sprintf("%s/%s", "https://img.shields.io/badge", badgeContent);
+    websave(fullfile(getOutputFolder(),"coverageBadge.svg"), url);
 end
