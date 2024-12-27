@@ -139,6 +139,7 @@ jobs:
         run: |
           Xvfb :99 & 
           echo "DISPLAY=:99" >> $GITHUB_ENV
+      # Do integration test    
       - name: Integration Test
         uses: matlab-actions/run-build@v2
         with:
