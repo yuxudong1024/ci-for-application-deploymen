@@ -102,9 +102,9 @@ jobs:
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
-          key: ${{ secrets.KEY }}
+          password: ${{ secrets.PASSWORD }}
           port: ${{ secrets.PORT }}
-          source: shortestTripproductionServerArchive
+          source: shortestTripproductionServerArchive/shortestTrip.ctf
           target: /home/ubuntu/samd/mps/apps/R2024b
 
       # Copy WebApp archive to edison.mathworks-workshop.com by using scp
@@ -115,7 +115,7 @@ jobs:
           username: ${{ secrets.USERNAME }}
           password: ${{ secrets.PASSWORD }}
           port: ${{ secrets.PORT }}
-          source: TravelingSalesmanwebAppArchive
+          source: TravelingSalesmanwebAppArchive/TravelingSalesman.ctf
           target: /home/ubuntu/samd/webapp/apps   
 
 #      - name: Publish Test Results
