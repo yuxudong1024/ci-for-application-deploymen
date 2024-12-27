@@ -69,7 +69,7 @@ function deployWebAppTask(~,archiveName,destination)
     if (~status)
         error(message);
     end
-    disp(destination + "\" + archiveName);
+    disp(destination + filesep + archiveName);
     
 end
 
@@ -93,7 +93,7 @@ function deployMPSArchiveTask(~,archiveName,destination)
     if (~status)
         error(message);
     end
-    disp(destination + "\" + archiveName);
+    disp(destination + filesep + archiveName);
     
 end
 
