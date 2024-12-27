@@ -102,8 +102,7 @@ jobs:
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
-          #password: ${{ secrets.PASSWORD }}
-          password: Matlab101
+          password: ${{ secrets.PASSWORD }}
           port: ${{ secrets.PORT }}
           source: shortestTripproductionServerArchive/shortestTrip.ctf
           target: /home/ubuntu/samd/mps/apps/R2024b
@@ -114,8 +113,7 @@ jobs:
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
-          password: Matlab101
-          #password: ${{ secrets.PASSWORD }}
+          password: ${{ secrets.PASSWORD }}
           port: ${{ secrets.PORT }}
           source: TravelingSalesmanwebAppArchive/TravelingSalesman.ctf
           target: /home/ubuntu/samd/webapp/apps   
