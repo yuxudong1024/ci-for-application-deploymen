@@ -70,16 +70,27 @@ jobs:
           Xvfb :99 & 
           echo "DISPLAY=:99" >> $GITHUB_ENV
  
-      - name: Run Test
+      - name: Build MPS Archive
         uses: matlab-actions/run-build@v2
         with:
-          tasks: deployMPSArchive deployWebApp
+          tasks: deployMPSArchive
+
+      - name: Build WebApp Archive
+        uses: matlab-actions/run-build@v2
+        with:
+          tasks: deployWebApp
           
-      - name: Upload Server Archive 
+      - name: Upload Production Server Archive 
         uses: actions/upload-artifact@v4
         with:
-          name: Travel Man WebApp and Production Server Archive 
-          path: shortestTripproductionServerArchive TravelingSalesmanwebAppArchive
+          name: Travel Man Production Server Archive 
+          path: shortestTripproductionServerArchive
+
+      - name: Upload WebApp Server Archive 
+        uses: actions/upload-artifact@v4
+        with:
+          name: Travel Man WebApp Server Archive 
+          path: TravelingSalesmanwebAppArchive  
 
 #      - name: Publish Test Results
 #        uses: EnricoMi/publish-unit-test-result-action@v1
