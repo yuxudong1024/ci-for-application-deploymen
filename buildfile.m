@@ -59,11 +59,15 @@ function deployWebAppTask(~,archiveName,destination)
     % Build web app and deploy to web app server
     wasResults = compiler.build.webAppArchive(fullfile(currentProject().RootFolder, ...
         "source","TravelingSalesman.mlapp"), "ArchiveName", archiveName);
-    [status,message] = copyfile(wasResults.Files{1}, destination);
-    if (~status)
-        error(message);
+    % Only Copy the application when it is not running on GitHub
+    disp(wasResults)
+    if (getenv('GITHUB_REPOSITORY') == "")
+        [status,message] = copyfile(wasResults.Files{1}, destination);
+        if (~status)
+            error(message);
+        end
+        disp(destination + "\" + archiveName);
     end
-    disp(destination + "\" + archiveName);
 end
 
 function deployMPSArchiveTask(~,archiveName,destination)
@@ -75,11 +79,14 @@ function deployMPSArchiveTask(~,archiveName,destination)
     end
     mpsResults = compiler.build.productionServerArchive(fullfile(currentProject().RootFolder, ...
         "source","shortestTrip.m"), "ArchiveName", archiveName);
-    [status,message] = copyfile(mpsResults.Files{1}, destination);
-    if (~status)
-        error(message);
-    end
+    disp(mpsResults)
+    if (getenv('GITHUB_REPOSITORY') == "")
+        [status,message] = copyfile(mpsResults.Files{1}, destination);
+        if (~status)
+            error(message);
+        end
     disp(destination + "\" + archiveName);
+    end
 end
 
 function deployFrontendTask(~, archiveName, server, outputFolder)
@@ -87,7 +94,7 @@ function deployFrontendTask(~, archiveName, server, outputFolder)
     arguments
         ~ 
         archiveName = "shortestTrip";
-        server = "https://ipws-mps.mathworks.com";
+        server = "`";
         outputFolder = "public";
     end
     apiEndpoint = server + "/" + archiveName + "/shortestTrip";
