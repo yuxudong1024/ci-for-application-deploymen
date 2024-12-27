@@ -118,6 +118,33 @@ jobs:
           source: TravelingSalesmanwebAppArchive
           target: /home/ubuntu/samd/webapp/apps   
 
+  integrationTest:
+    
+    strategy:
+      matrix:
+         os: [ubuntu-latest]
+    needs: test 
+    needs: compile-deployment
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup MATLAB on the GitHub Actions runner
+        uses: matlab-actions/setup-matlab@v2
+        with:
+          cache: true
+          products: ${{ env.PRODUCT_LIST }}
+      - name: Start display server (required for building doc in MATLAB)
+        run: |
+          Xvfb :99 & 
+          echo "DISPLAY=:99" >> $GITHUB_ENV
+      - name: Integration Test
+        uses: matlab-actions/run-build@v2
+        with:
+          tasks: integrationTest
+
 #      - name: Publish Test Results
 #        uses: EnricoMi/publish-unit-test-result-action@v1
 #        with:

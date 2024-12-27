@@ -17,7 +17,13 @@ classdef tShortestTripIntegration < matlab.unittest.TestCase
         function prodServerIntegrationTest(testCase)
             x = [1,1,2,2];
             y = [1,2,2,1];
-            url = testCase.ServerUrl + "/" + testCase.ArchiveName + "/shortestTrip";
+            if (getenv('GITHUB_REPOSITORY') ~= "")
+               testCase.ServerUrl = "edison.mathworks-workshop.com:9900";
+               url = testCase.ServerUrl + "/" + "/shortestTripproductionServerArchive" + testCase.ArchiveName + "/shortestTrip"; 
+            else
+               url = testCase.ServerUrl + "/" + testCase.ArchiveName + "/shortestTrip"; 
+            end
+            % url = testCase.ServerUrl + "/" + testCase.ArchiveName + "/shortestTrip";
             disp(url);
             data = mps.json.encoderequest({x,y});
             options = weboptions("MediaType","application/json");
