@@ -123,9 +123,8 @@ jobs:
     strategy:
       matrix:
          os: [ubuntu-latest]
-    needs: test 
-    needs: compile-deployment
-
+    needs: compile-deployment 
+    
     runs-on: ${{ matrix.os }}
 
     steps:
