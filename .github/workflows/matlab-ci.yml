@@ -74,15 +74,13 @@ jobs:
       - name: Run Test
         uses: matlab-actions/run-build@v2
         with:
-          tasks: deployMPSArchive
-          tasks: deployWebApp
+          tasks: deployMPSArchive deployWebApp
           
       - name: Upload Server Archive 
         uses: actions/upload-artifact@v4
         with:
           name: Travel Man WebApp and Production Server Archive 
-          path: shortestTripproductionServerArchive   
-          path: TravelingSalesmanwebAppArchive
+          path: shortestTripproductionServerArchive TravelingSalesmanwebAppArchive
 
 #      - name: Publish Test Results
 #        uses: EnricoMi/publish-unit-test-result-action@v1
