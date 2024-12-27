@@ -53,6 +53,10 @@ jobs:
 
   compile-deployment:
     
+    strategy:
+      matrix:
+         os: [ubuntu-latest]
+         
     needs: test
 
     runs-on: ${{ matrix.os }}
