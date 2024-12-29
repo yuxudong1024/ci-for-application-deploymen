@@ -19,7 +19,7 @@ classdef tShortestTripIntegration < matlab.unittest.TestCase
             y = [1,2,2,1];
             if (getenv('GITHUB_REPOSITORY') ~= "")
                testCase.ServerUrl = "edison.mathworks-workshop.com:9900";
-               url = testCase.ServerUrl + "/" + "/shortestTripproductionServerArchive" + testCase.ArchiveName + "/shortestTrip"; 
+               url = testCase.ServerUrl + "/" +  "shortestTrip/shortestTrip"; 
             else
                url = testCase.ServerUrl + "/" + testCase.ArchiveName + "/shortestTrip"; 
             end
