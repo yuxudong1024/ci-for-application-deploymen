@@ -43,10 +43,10 @@ jobs:
         with:
           tasks: test
           
-      - name: Junit Test Summary
-        uses: test-summary/action@v2
-        with:
-           paths: "test-reports/junit.xml"
+      #- name: Junit Test Summary
+      #  uses: test-summary/action@v2
+      #  with:
+      #     paths: "test-reports/junit.xml"
 
       - name: Upload Code Coverage report 
         uses: actions/upload-artifact@v4
@@ -60,7 +60,7 @@ jobs:
         with:
           files: |
             test-reports/junit.xml
-            code-coverage/cobertura-coverage.xml
+          # code-coverage/cobertura-coverage.xml
 
   compile-deployment:
     
