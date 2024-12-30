@@ -43,13 +43,19 @@ jobs:
         with:
           tasks: test
           #build-options: -parallel
-          #test-results-junit: test-reports/junit.xml
-          #code-coverage-cobertura: code-coverage\cobertura-coverage.xml
 
       - name: Junit Test Summary
         uses: test-summary/action@v2
         with:
            paths: "test-reports/junit.xml"
+
+       -name: Publish Test Results
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        if: always()
+        with:
+          files: |
+          test-reports/junit.xml
+          code-coverage\cobertura-coverage.xml
 
       - name: Upload Code Coverage report 
         uses: actions/upload-artifact@v4
