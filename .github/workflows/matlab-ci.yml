@@ -49,19 +49,19 @@ jobs:
         with:
            paths: "test-reports/junit.xml"
 
-       -name: Publish Test Results
-        uses: EnricoMi/publish-unit-test-result-action@v2
-        if: always()
-        with:
-          files: |
-          test-reports/junit.xml
-          code-coverage\cobertura-coverage.xml
+       - name: Publish Test Results
+         uses: EnricoMi/publish-unit-test-result-action@v2
+         if: always()
+         with:
+           files: |
+           test-reports/junit.xml
+           code-coverage\cobertura-coverage.xml
 
-      - name: Upload Code Coverage report 
-        uses: actions/upload-artifact@v4
-        with:
-          name: Code Coverage report
-          path: code-coverage
+       - name: Upload Code Coverage report 
+         uses: actions/upload-artifact@v4
+         with:
+           name: Code Coverage report
+           path: code-coverage
 
   compile-deployment:
     
