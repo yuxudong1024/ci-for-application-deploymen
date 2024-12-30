@@ -1,0 +1,9 @@
+{
+  "Connections": {
+    "LocalRedis": {
+      "Provider": "Redis",
+      "Host": "localhost",
+      "Port": 4321
+    }
+  }
+}

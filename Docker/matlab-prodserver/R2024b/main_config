@@ -1,0 +1,1251 @@
+# -*- conf-space -*-
+# ------------------------------------------------------------------------------
+#
+# main_config -- Settings for MATLAB Production Server
+#
+#  Copyright (C) 2011-2021 The MathWorks, Inc.
+#
+# ------------------------------------------------------------------------------
+
+# NOTES:
+# 
+# All file system paths in this file are relative to the server instance 
+# root (abbreviated below as $INSTANCE)
+#
+# All storage sizes (denoted below as SIZE) can be specified as a integer 
+# with no units (in which case it is assumed to be a number of bytes) or a 
+# unit string can be appended (case doesn't matter, "b" = bytes, "k" = 1024 bytes, 
+# "m" =  1024^2 bytes, "g" = 1024^3 bytes, "t" = 1024^4 bytes, "p" =  1024^5 bytes).
+# Only the first letter of the unit string is read; the rest is ignored.
+#
+#-------------------------------------------------------------------------------
+# http
+# Syntax: --http [HOST:]PORT
+#
+# The HTTP interface port and (optional) address or host name
+#
+# Port may be 0 to indicate 'bind to any available port.'
+# The 'HOST:' portion of this option may be omitted to indicate bind to all 
+# addresses.
+#
+# Examples (uncomment one of the lines below to change configured address):
+#
+# Restrict access to the HTTP interface to local clients only, port 9910
+# --http localhost:9910
+#
+# Bind to any free port (the bound address will be written to 
+# $INSTANCE/endpoint/http)
+# --http 0
+#
+# Bind to a specific IP address and port
+# --http 234.27.101.3:9910
+#
+# Bind to a specific host name, any free port
+# --http my.hostname.com:0
+# 
+# (Default) Bind to all interfaces using port 9910
+#
+--http 9910
+
+################################################################################
+#
+# HTTPS Settings
+#
+################################################################################
+# https
+# Syntax: --https [HOST:]PORT
+#
+# HTTPS and HTTP cannot bind to the same interface:port. However they can bind
+# to the same port on different interfaces.
+#
+#--https 9920
+
+#-------------------------------------------------------------------------------
+# ssl-verify-peer-mode
+# Syntax: --ssl-verify-peer-mode MODE
+#
+# How the MPS server verifies the client.
+# Possible modes are:
+#
+#   no-verify-peer
+#       No peer certificate verification. The client side does not need to
+#       provide a certificate.
+#
+#   verify-peer-require-peer-cert
+#       The client must provide a certificate and the certificate will be
+#       verified.
+#
+# The default is "no-verify-peer"
+#
+--ssl-verify-peer-mode no-verify-peer
+
+#-------------------------------------------------------------------------------
+# x509-private-key
+# Syntax: --x509-private-key PATH
+#
+# Path to the private-key. The key should be in PEM format.
+# This option must be specified with --https
+#
+#--x509-private-key ./x509/private_key.pem
+
+#-------------------------------------------------------------------------------
+# x509-passphrase
+# Syntax: --x509-passphrase FILE
+#
+# The file containing the passphrase of the encrypted private-key. This file
+# MUST be owner read-only. 
+# This is required if the --x509-private-key is specified and the private key
+# file is encrypted. Otherwise the private key will fail to load.
+#
+#--x509-passphrase ./x509/key_passphrase
+    
+#-------------------------------------------------------------------------------
+# x509-cert-chain
+# Syntax: --x509-cert-chain FILE
+#
+# Server certificate chain file. It contains one or more PEM format
+# certificates. The chain begins with the server's own certificate. The
+# server's certificate is followed by the chain of untrusted certificates in
+# order. Trusted certificates should NOT be put into this file.
+# Intermediate certificates can also be put into the CA file which is specified
+# by the "--x509-ca-file-store". The server will try to build the certificate
+# chain from both the cert chain file and the CA file. However, if an 
+# intermediate certificate shows up in the CA file, it also becomes a trusted
+# certificate.
+# This option must be specified with --https. Note that this option
+# requires --x509-private-key
+#
+#--x509-cert-chain ./x509/cert_chain.pem
+    
+#-------------------------------------------------------------------------------
+# x509-ca-file-store
+# Syntax: --x509-ca-file-store FILE
+#
+# CA file to verify peer certificates. This file should contain trusted 
+# certificates and certificate revocation lists.
+# See description in "--x509-cert-chain" about intermediate certificates
+# present in this file.
+# If "--ssl-verify-peer-mode verify-peer-require-peer-cert" is set, then
+# you must either set this or "--x509-use-system-store" option.
+#
+#--x509-ca-file-store ./x509/ca_file.pem
+
+#-------------------------------------------------------------------------------
+# x509-use-system-store
+# Syntax: --x509-use-system-store
+#
+# Use external CA files as trusted certificates.
+# By default, the server uses the file "/etc/ssl/certs/ca-certificates.crt" as
+# trusted cert store and searches for trusted certificates under the folder
+# "/etc/ssl/certs".
+# These locations can be overridden by setting the environment variables
+# "SSL_CERT_FILE" and "SSL_CERT_DIR". Note that MPS on Windows does not support
+# a default system store but using these environment variables can simulate
+# this behavior.
+# If "--ssl-verify-peer-mode verify-peer-require-peer-cert" is set, then
+# you must either set this or "--x509-ca-file-store" option
+#
+#--x509-use-system-store
+
+#-------------------------------------------------------------------------------
+# x509-use-crl
+# Syntax: --x509-use-crl
+#
+# Turn on Certificate Revocation List (CRL).
+# By default, it is off. In this case, the CRLs in the x509-ca-file-store will
+# be ignored.
+# If "x509-use-revocation-list" is on, the CRLs will be loaded and participate
+# in the client certificate verification. If there is no CRL in the
+# X509-ca-file-store or the CRL has expired, SSL handshake will be rejected.
+#
+#--x509-use-crl
+
+#-------------------------------------------------------------------------------
+# ssl-tmp-dh-param
+# Syntax: ssl-tmp-dh-param FILE
+#
+# Parameters to generated ephemeral DH key.
+# If it is disabled, the MPS will automatically generate these parameters during
+# startup. Enable this can speed up the server startup.
+#
+#--ssl-tmp-dh-param ./x509/dh_param.pem
+
+#-------------------------------------------------------------------------------
+# ssl-tmp-ec-param
+# Syntax: ssl-tmp-ec-param ELLIPTIC-CURVE-NAME
+#
+# Name of the Elliptic Curve to be used in ECDHE ciphers.
+#
+# ECDHE ciphers are enabled by default.
+# If this property is not specified, default elliptic curves are used for ECDHE ciphers.
+# The default supported elliptic curves are in the following order: x25519, secp256r1, 
+# x448, secp521r1, secp384r1.
+#
+#--ssl-tmp-ec-param prime256v1
+
+#-------------------------------------------------------------------------------
+# ssl-protocols
+# Syntax: --ssl-protocols [TLSv1],[TLSv1.1],[TLSv1.2]
+#
+# Lists allowed protocols.
+# Protocols supported: TLSv1, TLSv1.1, TLSv1.2
+#
+# NOTE: Both SSLv2 and SSLv3 have been diagnosed with serious security issues.
+#       Their support is removed.
+#
+# By default all supported protocols are allowed.
+# Examples:
+#
+#  TLSv1
+#    only TLSv1 is enabled
+#
+#  TLSv1,TLSv1.1,TLSv1.2
+#    enable TLSv1 ,TLSv1.1 and TLSv1.2
+#
+--ssl-protocols TLSv1,TLSv1.1,TLSv1.2
+    
+#-------------------------------------------------------------------------------
+# ssl-ciphers
+# Syntax: --ssl-ciphers LIST
+#
+# Ciphers allowed.
+# By default all the ciphers are allowed
+# 
+# Examples:
+#
+# 	ALL
+#		all ciphers suites except the eNULL ciphers which must be explicitly
+#		enabled
+#	HIGH
+#	   "high" encryption cipher suites
+#
+--ssl-ciphers ALL
+
+#-------------------------------------------------------------------------------
+# ssl-allowed-client
+# Syntax: --ssl-allowed-client client[:ctf,...],...
+#
+# Authorize MPS client based on the client certificate's common name.
+# Only authorized clients can request MATLAB code execution.
+# If there are no CTFs following the common name, it means the client can
+# access all the CTFs deployed. Otherwise the client can only access the CTFs
+# specified.
+#
+# --ssl-allowed-client and --access-control-provider are incompatible flags, and
+# only one of them can be enabled.
+# If both are enabled, MPS will fail to start.
+#
+# Examples:
+#
+#     --ssl-allowed-client client1,client2:magic,helloworld
+#         client1 and client2 are allowed to access magic.ctf and helloworld.ctf
+#
+#    --ssl-allowed-client client3
+#         client3 are allowed to access all CTFs
+#--ssl-allowed-client client,...
+
+################################################################################
+#
+# Access Control Settings
+#
+################################################################################
+#
+# access-control-provider
+# Syntax: --access-control-provider PROVIDER
+#
+# Enables Access Control by identity provider.
+# PROVIDER specifies the identity provider that the server instance uses
+# for access control.
+# Supported value for PROVIDER includes: OAuth2
+#
+# You can enable either --ssl-allowed-client or --access-control-provider,
+# but not both. If you enable both, MATLAB Production Server will fail to start.
+#
+# Enables Access Control using OAuth2 access token
+# --access-control-provider OAuth2
+
+#-------------------------------------------------------------------------------
+# access-control-config
+# Syntax: --access-control-config PATH
+#
+# Specifies the path to the identity provider specific configuration file.
+# Specifying this property is optional. 
+# The default path for OAuth2 is ./config/jwt_idp.json.
+# If you enable access control by specifying access-control-provider, 
+# the access control configuration file must exist in PATH, otherwise 
+# MATLAB Production Server will fail to start.
+#
+# Example:
+# --access-control-config ./config/jwt_idp.json
+
+#-------------------------------------------------------------------------------
+# access-control-policy
+# Syntax: --access-control-policy PATH
+#
+# Specifies the path to the access control policy file.
+# Specifying this property is optional. 
+# The default path is ./config/ac_policy.json.
+# If you enable access control by specifying access-control-provider, 
+# the access control policy file must exist in PATH, otherwise 
+# MATLAB Production Server will fail to start.
+#
+# Example:
+# --access-control-policy ./config/ac_policy.json
+
+################################################################################
+#
+# Authentication and Delegation Settings
+#
+################################################################################
+#
+# http-authentication-method
+# Syntax: --http-authentication-method METHOD
+#
+# Specifies the HTTP authentication method.
+# Currently, spnego (Simple and Protected Negotiation Mechanism) is the only 
+# method supported.
+# If you do not specify this option, MATLAB Production Server does not perform 
+# HTTP authentication. You can still authenticate using an HTTPS client 
+# certificate, which can be configured using HTTPS settings. 
+#
+# Example:
+# --http-authentication-method spnego
+
+#-------------------------------------------------------------------------------
+# client-credential-delegation
+# Syntax: --client-credential-delegation METHOD
+#
+# Specifies the client credential delegation method.
+# Currently, kerberos-without-protocol-transition is the only method supported.
+# If client-credential-delegation is kerberos-without-protocol-transition, then 
+# http-authentication-method must be set to spnego; otherwise MATLAB Production 
+# Server will fail to start.
+#
+# Example:
+# --client-credential-delegation kerberos-without-protocol-transition
+
+################################################################################
+#
+# MATLAB Runtime Settings
+#
+################################################################################
+
+# mcr-root
+# Syntax: --mcr-root PATH
+#
+# The installed location of the MATLAB Runtime
+# If multiple runtime installations are available, then each runtime should be
+# specified in a separate line, for example:
+# 
+# --mcr-root /usr/local/MCR/v80
+# --mcr-root /usr/local/MATLAB/MATLAB_Runtime/v86
+#
+# If this option is set to the special value 'mCRrOOTuNsET', this indicates to 
+# mps-start that there is no runtime configured for this instance.  This causes 
+# mps-start to result in an error if invoked.
+#
+# If multiple --mcr-root settings are present, then the server will use dynamic
+# worker pool management, where worker processes are started in response to
+# demand and shut down in response to system resource (over-)utilization.
+# See the section 'Worker Management Settings' for more details.  NOTE: this 
+# applies even if all the --mcr-root settings point to the same version of the 
+# runtime.
+#
+# A server instance should only be configured to use runtime roots on a local 
+# file system.  Otherwise, a network partition may cause worker processes to 
+# fail.
+#
+# All values for --mcr-root must be for the same OS/hardware combination 
+# (e.g., win32, win64, glnxa64, maci64)
+#
+--mcr-root /usr/local/MATLAB/MATLAB_Runtime/R2024b
+
+
+################################################################################
+#
+# Worker Management Settings
+#
+################################################################################
+
+# NOTE: All settings that control the shutdown/restart of a worker process 
+#       will only stop a worker in between work requests, not while a request
+#       is in the middle of execution.
+#       However, if "server-termination-grace-period" option is specified, worker 
+# 		process may be killed even if it is working on a request.
+#
+
+# num-workers
+# Syntax: --num-workers COUNT
+#
+# The maximum number of worker processes allowed to process work at a given
+# time.  If there is only a single value specified for --mcr-root, then this
+# setting will determine the fixed size of the worker pool.  If there is more
+# than one --mcr-root specified, then --num-workers specifies a maximum on the
+# size of each MATLAB Runtime-specific sub-pool.
+#
+# The maximum allowed value of this setting is limited by the number of license
+# keys available for MATLAB Production Server.  
+#
+# This parameter defines the number of concurrent MATLAB execution requests that
+# can be processed simultaneously.  It should roughly correspond to the number 
+# of hardware threads available on the local host.
+#
+# If there are many --mcr-root settings present, then there may actually be
+# more than --num-workers worker processes at a time, but at maximum only
+# --num-workers of those are allowed to be executing a request.
+#
+# NOTE: a single worker process may service requests from many clients over the
+# course of its lifetime (and conversely, a single client's requests may be
+# serviced by many difference worker processes), but only a single client can
+# interact with a single worker process at a time (and vice versa).
+#
+# This value must be at least 1.   
+#
+--num-workers 1
+
+#-------------------------------------------------------------------------------
+# worker-restart-interval
+# Syntax: --worker-restart-interval [hr:][min:][sec.][fractSec]
+#
+# Configuration option for worker process restart timeout. The server stops and 
+# restarts its worker processes at this interval.  If this setting is not given,
+# then workers will not be restarted in response to time.
+#
+# Enter a delimited string in the format below to specify the timeout value: 
+#   "hours:minutes:seconds.fractional seconds" 
+#
+# Example: 23:59:59.000
+#
+# Excess digits in fractional seconds will be dropped. 
+#
+# Example: "1:02:03.123456999" => 1:02:03.123456
+#
+# Time-based automatic restarting can be disabled by commenting out or removing 
+# the --worker-restart-interval option.
+#
+# Example: (restart workers every 24 hours)
+#  --worker-restart-interval 24:00:00
+#
+--worker-restart-interval 12:00:00
+
+#-------------------------------------------------------------------------------
+# worker-restart-memory-limit
+# worker-restart-memory-limit-interval
+# Syntax: --worker-restart-memory-limit SIZE
+#         --worker-restart-memory-limit-interval [hr:][min:][sec.][fractSec]
+#
+# If a worker process's working set size exceeds --worker-restart-memory-limit
+# for an interval of time greater than --worker-restart-memory-limit-interval,
+# then that worker will be restarted.  See additional information about SIZE 
+# in the NOTES section above.
+#
+# If these settings are not specified, then worker processes are never restarted
+# in response to individual worker process memory usage.
+#
+# Example: (restart any worker whose working set size exceeds 1GB for more than 
+# one hour)
+#  --worker-restart-memory-limit 1GB
+#  --worker-restart-memory-limit-interval 1:00:00
+
+#-------------------------------------------------------------------------------
+# worker-memory-check-interval
+# Syntax: --worker-memory-check-interval [hr:][min:][sec.][fractSec]
+#
+# How often to poll the memory usage of a worker process.
+#
+# This setting will affect the behavior of all other settings which take action
+# based on worker memory usage (such as --worker-memory-trigger, 
+# --worker-memory-target, and worker-restart-memory-limit).
+#
+# Example: (check memory usage every one minute thirty seconds)
+#  --worker-memory-check-interval 0:01:30
+--worker-memory-check-interval 0:00:30
+
+#-------------------------------------------------------------------------------
+# worker-memory-trigger
+# worker-memory-target
+# Syntax: --worker-memory-trigger SIZE
+#         --worker-memory-target SIZE
+#
+# These settings only affect behavior when more then one --mcr-root is given.
+# 
+# If there is more than one --mcr-root, then a sub-pool of workers is maintained
+# for each --mcr-root.  When the total of the working set sizes of all worker
+# processes in all sub-pools exceeds --worker-memory-trigger, then the oldest
+# workers will be shut down until the total working set size of all worker
+# processes is below --worker-memory-target.
+#
+# --worker-memory-trigger should be set less than the amount of physical memory
+# on the host.  --worker-memory-target MUST be set less than or equal to
+# --worker-memory-trigger.
+#
+# If neither setting is specified, then workers are never shut down in response
+# to memory usage.
+#
+# See additional information about SIZE in the NOTES section above.
+#
+# Example: (shrink the worker pool down to 2GB if it exceeds 4GB)
+#  --worker-memory-trigger 4GB
+#  --worker-memory-target 2GB
+
+#-------------------------------------------------------------------------------
+# queue-time-trigger
+# queue-time-target
+# Syntax: --queue-time-trigger [hr:][min:][sec.][fractSec]
+#         --queue-time-target [hr:][min:][sec.][fractSec]
+#
+# These settings only affect behavior when more than one --mcr-root is given.
+#
+# These settings control when workers are started in response to request load.
+# The algorithm is as follows:  
+#   1. all requests are sorted by server arrival time
+#   2. starting at the oldest, requests are mapped on to idle workers
+#   3. if there any requests that can't be mapped on to an idle worker, and
+#      the difference between the current time and the arrival time of the 
+#      oldest such request (this quantity is defined as the "queue-time") is 
+#      greater than --queue-time-trigger, then workers are started until either
+#      the sub-pool maximum is reached (defined by --num-workers) or until
+#      the queue-time becomes less than --queue-time-target.
+#
+# The default value for both of these settings is 250ms or 0:00:00.25
+#
+# --queue-time-target must be less than or equal to --queue-time-trigger.
+#
+# Example: (grow the worker pool when queue-time exceeds 500ms, until 
+# queue-time falls below 100ms)
+# --queue-time-trigger 0:00:00.5
+# --queue-time-target 0:00:00.1
+--queue-time-trigger 0:00:00.25
+--queue-time-target 0:00:00.25
+
+
+################################################################################
+#
+# Server Performance Tuning Settings
+#
+################################################################################
+
+# num-threads
+# Syntax: --num-threads COUNT
+#
+# The number of request-processing threads within the main server
+#
+# In order to support a high number of long-lived, mostly idle client 
+# connections with minimal overhead, the server does not allocate a unique 
+# thread to each client connection.  Rather, when data is available on a 
+# connection, the required processing is scheduled on a pool of threads in the 
+# server main process (which is the parent of the worker processes).  This 
+# parameter sets the size of that pool.
+#
+# Note that the threads in this pool do not execute MATLAB code directly; there 
+# is a single thread within each worker process that executes MATLAB code on 
+# the client's behalf.
+#
+# This parameter should be set to 1 and only increased if expected load consists
+# of a high volume of short-running requests.  This strategy will ensure that 
+# the available processor resources are well balanced between MATLAB code 
+# execution and client-server request processing overhead.  There is usually no
+# benefit to increasing this parameter to more than the number of available
+# cores.
+#
+# This value must be at least 1.   
+#
+--num-threads 1
+
+# profile
+# Syntax: --profile (on|off) OBJECT
+#
+# Log server profile information in the main log for the specified object when the state is on.
+#
+# Specify multiple profile properties to log profile information for multiple objects.
+#
+# Description of OBJECT:
+# server - information about server requests and workers
+# server.request - information about requests made to the server
+# server.request.archive - information about the archives in requests
+# server.request.client - information about the clients that make requests
+# server.worker and server.worker.pool - information about workers
+#
+# The objects are hierarchical; specifying "server.request" implies "server.request.archive" and
+# "server.request.client" as well.
+#
+# Activating profiling has a negative impact on performance.
+#
+# Examples:
+#
+# Enable profiling for requested archives only:
+# --profile on server.request.archive
+#
+# Enable profiling for all server requests:
+# --profile on server.request
+#
+# Enable profiling for all server requests and all workers:
+# --profile on server
+#
+# Enable profiling for clients and all workers:
+# --profile on server.request.client
+# --profile on server.worker.pool
+#
+# The following is an excerpt of the main.log that contains profiling information for all objects.
+#
+# 93 [2020.03.19 13:05:56.554236] [profile] [client:[::1]:62736] [component:mymagic] [connection_id:2] 
+# [function:magic] [mode:sync] [request_id:0:1:1][service:http-connection] [type:request_arrive] 
+# Request arrived and was placed in the queue.
+# 94 [2020.03.19 13:05:56.554236] [profile] Request to allocate next available worker
+# 95 [2020.03.19 13:05:56.555240] [profile] Lease created for worker-1
+# 96 [2020.03.19 13:05:56.555240] [profile] [client:[::1]:62736] [request_id:0:1:1] [type:request_start] [worker_id:1] 
+# Request started executing on worker 1
+# ...
+# 99 [2020.03.19 13:05:56.558233] [profile] [client:[::1]:62736] [request_id:0:1:1] [type:request_finish] [worker_id:1] 
+# Request completed with HTTP status 200
+# 100 [2020.03.19 13:05:56.558233] [profile] Lease terminated for worker-1
+# 101 [2020.03.19 13:05:56.558233] [profile] worker-1 PASSED health check; returning to the pool
+
+
+################################################################################
+#
+# Auto-Deployment Settings
+#
+################################################################################
+
+# auto-deploy-root
+# Syntax: --auto-deploy-root PATH
+#
+# CTF files are placed here for automatic deployment
+#
+# Any CTF files placed in this directory are automatically unpacked and deployed
+# while this instance is started.  No restart is necessary when a CTF is added, 
+# updated, or removed.  Because this is a read-only location, many instances may
+# share a single auto-deploy-root.  This allows near-simultaneous hot deployment
+# to multiple instances.  The auto-deploy-root is scanned every five seconds for
+# changes.
+#
+--auto-deploy-root ../../../../share/auto_deploy
+
+#-------------------------------------------------------------------------------
+# async-deploy-on-startup
+# Syntax: --async-deploy-on-startup
+#
+# async-deploy-on-startup delays deployment of the deployable archives until 
+# after the server starts. After starting, the server scans the folder specified
+# by the auto-deploy-root property for archives to deploy, then deploys them. 
+# Due to this delayed deployment, the archives are accessible only after the
+# server finishes deploying them and are not accessible immediately after the 
+# server starts. If you have several archives or large archives to deploy, 
+# then set this property to avoid server timeout on startup.
+# 
+# If you do not set this property, the server instance automatically unpacks 
+# and deploys the archives placed in the folder specified by the 
+# auto-deploy-root property when it starts.
+#
+#--async-deploy-on-startup
+
+################################################################################
+#
+# Request Processing Settings
+#
+################################################################################
+# hide-matlab-error-stack
+# Syntax: --hide-matlab-error-stack
+#
+# Hide the MATLAB stack being transmitted to the client
+#
+# This option controls whether the MATLAB stack is exposed to the client.
+# The stack can be sent to the client during development/debug phase but
+# can be turned off in production.
+#
+#--hide-matlab-error-stack
+
+#-------------------------------------------------------------------------------
+# use-single-comp-thread
+# Syntax: --use-single-comp-thread
+#
+# Limits MATLAB to a single computational thread
+#
+# MATLAB uses multithreading capabilities of the computer on which it is
+# running. Enabling this option limits the number of computational threads
+# in MATLAB to 1.
+#
+#--use-single-comp-thread
+
+#-------------------------------------------------------------------------------
+# request-size-limit
+# Syntax: --request-size-limit SIZE
+#
+# Change the maximum allowed request size. See additional information about SIZE 
+# in the NOTES section above.
+#
+--request-size-limit 64MB
+
+
+################################################################################
+#
+# Log File/Rotation Settings
+#
+################################################################################
+
+# log-severity
+# Syntax: --log-severity error|information|trace
+#
+# The level of detail at which to add information to the main log (error, 
+# information, or trace)
+#
+# Specifying trace will include all messages at information and error level; 
+# likewise, specifying information will include all messages at the error level.
+#
+# Description of levels:
+#
+#   error       - notification of problems or unexpected results
+#   warning     - events that could lead to problems if unaddressed
+#   information - high-level information about major server events
+#   trace       - detailed information about the internal state of the server 
+#
+# The levels are cumulative; specifying "information" implies "warning" and
+# "error" as well.
+#
+# NOTE: trace should generally only be used when debugging problems or 
+#       qualifying changes.  Its use imposes a performance penalty on request 
+#       processing.
+#
+# Examples:
+#
+# Enable error messages only:
+#  --log-severity error
+#
+# Enable error and informational messages only:
+#  --log-severity information
+#
+# Enable all log messages (error, warning, information, and trace):
+#  --log-severity trace
+#
+--log-severity information
+
+#-------------------------------------------------------------------------------
+# log-rotation-size
+# Syntax: --log-rotation-size SIZE
+#
+# The maximum size to which the log can grow before it is rotated into the 
+# archive area.  If specified as less than 1MB, a warning will be issued and the
+# effective size will be increased to 1MB. See additional information about SIZE 
+# in the NOTES section above.
+#
+# If this option is commented out or deleted, then logs are never rotated based
+# on size.  They will still be rotated once a day, at midnight local time.
+#
+# Examples:
+# 
+# Rotate logs when they reach 64 kilobytes:
+#  --log-rotation-size 64k
+#
+# Rotate logs when they reach 1 million bytes:
+#  --log-rotation-size 1000000
+#
+# Rotate logs when they reach 5 megabytes:
+#  --log-rotation-size 5MB
+#
+--log-rotation-size 100MB
+
+#-------------------------------------------------------------------------------
+# log-archive-root
+# Syntax: --log-archive-root PATH
+#
+# Warning!  If this option is commented out or deleted, then rotated logs will 
+# remain in the log root directory which will grow unbounded as logs are 
+# rotated.
+#
+# Path to directory in which to store rotated log files.  Like all paths in this
+# file, relative path values are interpreted as relative to the instance root.
+#
+--log-archive-root ./old_logs
+
+#-------------------------------------------------------------------------------
+# log-archive-max-size
+# Syntax: --log-archive-max-size SIZE
+#
+# The maximum size to which the log archive area (which contains rotated log 
+# files) can grow before old log files are deleted. See additional information about 
+# SIZE in the NOTES section above.
+#
+# Warning!  If this option is commented out or deleted, then the log archive 
+# will grow without limit.
+#
+# NOTE: this option requires --log-archive-root to be set.
+#
+# Delete old logs when the archive reaches 1 gigabyte:
+#  --log-archive-max-size 1GB
+#
+# Rotate logs when they reach 1 million bytes:
+#  --log-archive-max-size 1000000
+#
+# Rotate old logs when the archive reaches 5 megabytes:
+#  --log-archive-max-size 5mb
+#
+--log-archive-max-size 1GB
+
+#-------------------------------------------------------------------------------
+# log-root
+# Syntax: --log-root PATH
+#
+# Path to the folder containing log files
+# This property is available only for an on-premises server installation.
+#
+# The server creates the following log files when it starts.
+#
+# main.log - Most recent log file.
+# main.out - Captures standard output from the main process.
+# main.err - Captures standard error output from the main process.
+# main__DATE__SERIAL.log - Main process log. When a server instance restarts or the
+# size of main.log reaches the limit set by the log-rotation-size property, the server
+# renames main.log to main__DATE__SERIAL.log and archives it in the folder set by the
+# log-archive-root property. The default archive location is the old_logs folder of a
+# server instance.
+#
+# Omitting this property disables all logging.
+#
+--log-root ./log
+
+
+################################################################################
+#
+# License Management Settings
+#
+################################################################################
+
+# license
+# Syntax: --license
+#
+# Configuration option to specify the license servers and/or the license files.
+# One or more license servers or license files can be used to define this 
+# option. 
+# For multiple values the syntax used is a list of license servers and/or
+# license files separated by either colon (:) on Unix or semi-colon (;) on Windows. 
+# If the "--license" option is not specified, the server will search 
+# in the default locations for the license files.
+# 
+# For example:
+#
+# Unix:
+#   --license 27000@hostA
+#   --license /opt/license/license.dat
+#   --license 27000@hostA:/opt/license/license.dat:27001@hostB:./license.dat
+# 
+# Windows:
+#   --license 27000@hostA
+#   --license c:\license\license.dat
+#   --license 27000@hostA;c:\license\license.dat;27001@hostB;.\license.dat
+
+#-------------------------------------------------------------------------------
+# license-grace-period
+# Syntax: --license-grace-period [hr:][min:][sec.][fractSec]
+#
+# Grace period starts since the first heartbeat loss event. Once grace period
+# has expired, the server will reject any new incoming HTTP requests.
+#
+# The default grace period length is 2 hours 30 minutes. The maximum value is 2
+# hours 30 minutes. The minimum value is 10 minutes.
+# 
+# It can be a delimited string in the format
+#
+#   "hours:minutes:seconds.fractional seconds"
+#
+# Excess digits in fractional seconds will be dropped. The "minutes" and
+# "seconds" parts can be left out. If the "minutes" or the "seconds" are
+# specified, they must be in the format of double digits.
+#   Example:
+#     2:10:19.1234       // 2 hours 10 minutes 10 seconds 123400 micro seconds
+#     1:02:03.123456999  // 1 hours 2 minutes 3 seconds 123456 micro seconds
+#     1:02:03            // 1 hours 2 minutes 3 seconds
+#     1:02               // 1 hours 2 minutes
+#     1                  // 1 hours
+#
+--license 27000@20.0.1.128
+--license-grace-period 2:30
+
+#-------------------------------------------------------------------------------
+# license-poll-interval
+# Syntax: --license-poll-interval [hr:][min:][sec.][fractSec]
+#
+# After the license server has timed out or after the grace period has expired,
+# the server will periodically try to poll the license manager in order to 
+# check out the license again. 
+#
+# The default poll interval is 10 minutes. The minimum value is 10 minutes.
+# 
+# It can be a delimited string in the format
+#
+#   "hours:minutes:seconds.fractional seconds"
+#
+# Excess digits in fractional seconds will be dropped. The "minutes" and
+# "seconds" parts can be left out. If the "minutes" or the "seconds" are
+# specified, they must be in the format of double digits.
+#   Example:
+#     2:10:19.1234       // 2 hours 10 minutes 10 seconds 123400 micro seconds
+#     1:02:03.123456999  // 1 hours 2 minutes 3 seconds 123456 micro seconds
+#     1:02:03            // 1 hours 2 minutes 3 seconds
+#     1:02               // 1 hours 2 minutes
+#     1                  // 1 hours
+#
+--license-poll-interval 0:10
+
+
+################################################################################
+
+# merge-worker-streams
+# Syntax: -- merger-worker-streams
+# Mergew worker stdout and stderr streams into a single stream.
+#
+#--merge-worker-streams
+
+#-------------------------------------------------------------------------------
+# pid-root
+# Syntax: --pid-root PATH
+#
+# The location for pid files
+#
+# Process identifier (pid) files record the system-specific process identifiers 
+# for all processes associated with this instance.  This includes:
+#
+#   main.pid - the process-id of the server's head process
+#   worker_N.pid - the process-id of each worker process N
+#
+# In some circumstances, worker_2.pid may be present when worker_1.pid is not.  
+# This is a strong indication that worker_1 crashed and was restarted 
+# automatically.  This can be confirmed by checking the main log.
+#
+# The format of these files is a single decimal integer, the process id.
+#
+# IMPORTANT: while modifying this location is allowed, each instance MUST have a
+# unique pid directory; otherwise behavior is undefined.
+#
+--pid-root ./pid
+
+#-------------------------------------------------------------------------------
+# endpoint-root
+# Syntax: --endpoint-root PATH
+#
+# Server named endpoints are stored here
+#
+# Each interface used to communicate with the outside world will generate an 
+# endpoint file in this directory.  Normally that means:
+#
+#   http    - the HTTP function execution interface
+#   control - the local control interface used by the scripting commands 
+#             (mps-start, mps-status, etc.)
+#
+# These files contain the host:post portion of the URL used to communicate with
+# the named service.
+#
+# IMPORTANT: while modifying this location is allowed, each instance MUST have a
+# unique endpoint directory; otherwise behavior is undefined.
+#
+--endpoint-root ./endpoint
+
+# ------------------------------------------------------------------------------
+# The following options specify the locations of files that are managed 
+#  internally by the server; these directories should not be accessed in any way 
+#  while the server is running
+# ------------------------------------------------------------------------------
+
+# extract-root
+# Syntax: --extract-root PATH
+# CTF files are unpacked to a hidden subdirectory of extract-root; the contents 
+# of this directory are automatically managed by the server
+#
+--extract-root .
+
+#-------------------------------------------------------------------------------
+# socket-root
+# Syntax: --socket-root PATH
+# Sockets (local, POSIX only) used for IPC while the server is running are 
+# stored here.
+#
+--socket-root ./.mps_socket
+
+#-------------------------------------------------------------------------------
+# main-log-format
+# Syntax: --main-log-format FORMAT
+#
+# Text format for the main log file.
+#
+# Specifies the text format for logging in the main.log file.
+# By default, the server writes the log data as plain text.
+#
+# FORMAT can be text/plain, text/json, or text/xml.
+#
+--main-log-format text/plain
+
+# ------------------------------------------------------------------------------
+# These settings control the server process behavior with respect to the 
+# execution environment.  It is very unusual to need to change them, please do 
+# so at your own risk!
+# ------------------------------------------------------------------------------
+
+# disable-control-c
+# Syntax: --disable-control-c
+# Disable keyboard interruption for the server
+#
+#--disable-control-c
+
+# ------------------------------------------------------------------------------
+# enable-graceful-shutdown
+# Syntax: --enable-graceful-shutdown
+# Gracefully shuts down server processes on receiving a terminal interrupt signal 
+# or program termination signal via SIGTERM. Setting this property releases any 
+# checked out server licenses when the system that runs the server shuts down or restarts.
+#
+# Note: If you set both disable-control-c and enable-graceful-shutdown properties, 
+# then the server ignores the terminal interrupt signal Ctrl-C. Server will gracefully 
+# shut down only on receiving SIGTERM.
+#
+--enable-graceful-shutdown
+
+#-------------------------------------------------------------------------------
+
+#-------------------------------------------------------------------------------
+# no-display
+# Syntax: --no-display
+# Disable X11 display on UNIX systems in worker processes
+#
+# This option is recommended because a display is usually not required by MATLAB
+# code deployed to the server, and when the MATLAB Runtime is configured to use 
+# one on Unix systems, it often results in a significant degradation of 
+# performance, both in terms of average request latency and throughput).
+#
+--no-display
+
+#-------------------------------------------------------------------------------
+# Control whether parallel execution of pipelined requests is enabled
+#
+--enable-http-pipelining
+
+#-------------------------------------------------------------------------------
+# http-linger-threshold
+# Syntax: --http-linger-threshold SIZE
+#
+# If an HTTP request is rejected and the MPS sever sends back an HTTP error
+# response e.g. HTTP 404/413, the MPS server will not kill the TCP connection
+# immediately. Instead it will wait for the MPS client to shutdown the TCP 
+# connection. This is to ensure that the MPS client implementation can receive
+# the HTTP error response sent by the MPS server. During this period of time,
+# the MPS server will keep on receiving data from the HTTP client and discard it,
+# until the amount of data received equals http-linger-threshold. After that,
+# the MPS server will simply reset the TCP connection. See additional information 
+# about SIZE in the NOTES section above.
+#
+# Examples:
+# 
+# Set the http linger threshold to be 64M bytes
+# --http-linger-threshold 64MB
+#
+# Set the http linger threshold to be 32k bytes
+# --http-linger-threshold 32KB
+#
+# Set the http linger threshold to be 1024 bytes
+# --http-linger-threshold 1024
+#
+# By default, it is unlimited and the MPS server will wait to receive the 
+# whole HTTP request.
+#
+#--http-linger-threshold 64MB
+
+#-------------------------------------------------------------------------------
+# cors-allowed-origins 
+# Syntax: --cors-allowed-origins [ LIST | * ]
+#
+# Turns on CORS (Cross-Origin Resource Sharing) and sets the origins that are allowed
+# to access MPS. * can be specified to enable access from any origin.  Otherwise, a list
+# of comma separated origins can be provided.
+# 
+# Examples:
+# 
+# Allow any origin
+# --cors-allowed-origins *
+#
+# Provide a list of origins
+# --cors-allowed-origins http://www.w3.org, https://www.apache.org
+#
+#--cors-allowed-origins *
+
+#-------------------------------------------------------------------------------
+# request-timeout
+# Syntax: --request-timeout [hr:][min:][sec.][fractSec]
+#
+# This is the time duration after the request has reached a terminal state when
+# the request gets deleted, unless the user/client has already deleted it.
+#
+# The timeout can be a delimited string in the format
+#
+#   "hours:minutes:seconds.fractional seconds"
+#
+# Excess digits in fractional seconds will be dropped. The "minutes" and
+# "seconds" parts can be left out. If the "minutes" or the "seconds" are
+# specified, they must be in the format of double digits.
+#   Example:
+#     2:10:19.1234       // 2 hours 10 minutes 10 seconds 123400 micro seconds
+#     1:02:03.123456999  // 1 hours 2 minutes 3 seconds 123456 micro seconds
+#     1:02:03            // 1 hours 2 minutes 3 seconds
+#     1:02               // 1 hours 2 minutes
+#     1                  // 1 hours
+#
+# --request-timeout 2:00:00
+
+
+#-------------------------------------------------------------------------------
+# server-memory-threshold
+# server-memory-threshold-overflow-action
+# Syntax: --server-memory-threshold SIZE
+#         --server-memory-threshold-overflow-action ACTION
+#         ACTION can either be 'archive_responses' or 'purge_responses'
+#
+# If the server process footprint exceeds --server-memory-threshold
+# then we perform the action specified by 
+# --server-memory-threshold-overflow-action on the response data of requests. 
+# If the threshold is not specified, the responses will continued to be kept 
+# on the server process until the client deletes them.
+#
+# See additional information about SIZE in the NOTES section above.
+#
+# If 'purge_responses' is the chosen action, the response data will be deleted 
+# in a 'First-In First-Out' order to get the process footprint below the 
+# specified threshold.
+# 
+# If 'archive_responses' is the chosen action, we archive the response data 
+# to disk until we get the process footprint below the specified threshold. 
+# See --response-archive-root for more information.
+#
+# Example: archive responses when the server process memory footprint 
+# hits 500MB 
+# 
+# --server-memory-threshold 500MB
+# --server-memory-threshold-overflow-action archive_responses
+#
+--server-memory-threshold 2GB
+--server-memory-threshold-overflow-action purge_responses
+
+#-------------------------------------------------------------------------------
+# response-archive-root
+# Syntax: --response-archive-root PATH
+#
+# PATH to the location where responses are archived to. This option is a must if 
+# the --server-memory-threshold-overflow-action was set to 'archive_responses'. 
+# The server process needs to have read & write permissions to the PATH.
+#
+#--response-archive-root ./.response_archive
+
+#-------------------------------------------------------------------------------
+# response-archive-limit
+# Sytax: --response-archive-limit SIZE
+#
+# The maximum disk space available to the server process for archiving. If this
+# limit is hit, the archives will be deleted in a 'First-In First-Out' order 
+# till we go below the limit. If this limit is not specified, the server 
+# process will assume there is no limit to disk usage for archiving.
+#
+# See additional information about SIZE in the NOTES section above.
+#
+#--response-archive-limit 5GB
+
+#-------------------------------------------------------------------------------
+# user-data
+# Syntax: --user-data KEY VALUE
+#     where KEY and VALUE are strings. Use the double quotes (") character 
+#     around strings with spaces. The backslash (\) character is the escape
+#     character and is used to insert double quotes or backslash characters:
+#         \" \\
+#
+# Associates MATLAB data value with string key. The application can retrieve the
+# data value by calling getmcruserdata(key).
+# 
+# Examples:
+#
+# --user-data ParallelProfile c:\\MPS\\myprofile.settings
+# --user-data MyValue "Quoted string with escaped \"quotes\" and \\backslash."
+
+#-------------------------------------------------------------------------------
+# enable-discovery
+# Syntax: --enable-discovery
+#
+# Turns on http(s) access for the function discovery api that is available at:
+#   http(s):<hostname>:<port>/api/discovery
+# 
+--enable-discovery
+
+#-------------------------------------------------------------------------------
+# enable-metrics
+# Syntax: --enable-metrics
+#
+# Turns on http(s) access for the performance metrics api that is available at:
+#   http(s):<hostname>:<port>/api/metrics
+# 
+# --enable-metrics
+
+#-------------------------------------------------------------------------------
+# log-handler
+# Syntax: --log-handler FORMAT COMMAND
+#
+# Adds a log handler that writes log data to the application specified by 
+# COMMAND in the format specified by FORMAT.
+#
+# FORMAT can be text/plain, text/json, or text/xml.
+#
+# COMMAND is the command to launch the application to process logs.
+#
+# The server instance launches an instance of the log handler at startup. 
+# If multiple --log-handler settings are present, the server instance launches an 
+# instance of each specified log handler at startup.
+# 
+# All log events are sent to  the STDIN stream of the log handler. The STDOUT and 
+# STDERR streams of the log handler are captured and written to 
+# INSTANCE_ROOT/log/custom_logger_N.out and INSTANCE_ROOT/log/custom_logger_N.err.
+#
+# Examples:
+#
+# Send all log data as JSON to a Python script
+# --log-handler text/json python /path/to/myloghandler.py
+#
+# Send all log data as plain text to a standalone executable that takes a config
+# file as an argument
+# --log-handler text/plain "C:\logging\myloghandler.exe" "C:\logging\dbconfig.cfg"
+#
+# Uses the Unix command 'cat' to write log messages to STDOUT. These log messages
+# are captured in INSTANCE_ROOT/log/custom_logger_N.out
+# --log-handler text/plain cat
+
+#-------------------------------------------------------------------------------
+# server-termination-grace-period
+# Syntax: --server-termination-grace-period [hr:][min:][sec.][fractSec]
+#
+# Configuration option for force closing the server instance. 
+# Setting this option ensures that all server instance processes are force killed if 
+# they have not already stopped within the specified grace period.
+#
+# The grace period is a colon-delimited string in the following format:
+#   "hours:minutes:seconds.fractional seconds"
+#
+# Excess digits in "fractional seconds" will be dropped. 
+# 	Example: "1:02:03.123456999" => 1:02:03.123456
+#
+# Optional values "minutes" and "seconds" if specified, must be in double-digit format.
+#   Example:
+#     2:10:19.1234       // 2 hours 10 minutes 10 seconds 123400 micro seconds
+#     1:02:03.123456999  // 1 hours 2 minutes 3 seconds 123456 micro seconds
+#     1:02:03            // 1 hours 2 minutes 3 seconds
+#     1:02               // 1 hours 2 minutes
+#     1                  // 1 hours
+#
+# --server-termination-grace-period 00:02:30
+
+#-------------------------------------------------------------------------------
+# files-root
+# Syntax: --files-root <RELATIVE-PATH-TO-DIRECTORY>
+#
+# Enables the serving of static content over HTTP.  Files contained within the
+# "files-root" directory are available at http[s]://hostname:port/~files/*.
+#
+# --files-root ./static_files
+
+#-------------------------------------------------------------------------------
+# routes-file
+# Syntax: --routes-file <RELATIVE-PATH-TO-ROUTES-CONFIG-FILE>
+#
+--routes-file ./config/routes.json
