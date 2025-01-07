@@ -7,6 +7,7 @@ stages:
   - prepare
   - test
   - deploy
+  - publish
 
 prepare-docker-image:
   stage: prepare
@@ -29,6 +30,7 @@ unit-test-job:
     name: $CI_REGISTRY_IMAGE/$IMAGE_NAME:$IMAGE_TAG
   script:
     - echo "Running unit tests..."
+    - mkdir -p public/branches/$CI_BRANCH_NAME/$CI_COMMIT_SHORT_SHA
     - matlab-batch "buildtool check test -verbosity Verbose"
   coverage: '/Statement: \d+/\d+ \((\d+\.\d+)%\)/'
   artifacts:
@@ -52,13 +54,14 @@ visdiff:
     - git config --global --add safe.directory $CI_PROJECT_DIR
     - matlab-batch "buildtool publishAppDiffToMain('visdiff') -verbosity Verbose"
     - echo "Report published as artifact in visdiff folder"
+  dependencies: [] # Prevent downloading of artifacts from previous jobs
   artifacts:
     paths:
       - visdiff/*
   except:
     - main
 
-pages:
+deploy-job:
   stage: deploy
   tags:
     - docker-exec
@@ -66,8 +69,20 @@ pages:
     name: $CI_REGISTRY_IMAGE/$IMAGE_NAME:$IMAGE_TAG
   script:
     - echo "Deploying ctf and web app..."
-    - matlab-batch "mpsArchiveName=['shortestTrip',upper(getenv('GITLAB_USER_LOGIN'))]; setenv('MPS_ARCHIVE_NAME',mpsArchiveName); disp(mpsArchiveName); mwaArchiveName=['TravelingSalesman',upper(getenv('GITLAB_USER_LOGIN'))]; disp(mwaArchiveName); buildtool deployFrontend(mpsArchiveName) deployMPSArchive(mpsArchiveName) deployWebApp(mwaArchiveName) integrationTest -verbosity Verbose"
+    - matlab-batch "mpsArchiveName=['shortestTrip',upper(getenv('GITLAB_USER_LOGIN'))]; disp(mpsArchiveName); mwaArchiveName=['TravelingSalesman',upper(getenv('GITLAB_USER_LOGIN'))]; disp(mwaArchiveName); buildtool deployMPSArchive(mpsArchiveName) deployFrontend deployWebApp(mwaArchiveName) integrationTest -verbosity Verbose"
   artifacts:
     when: always
+    paths:
+      - public
+  only:
+    - main
+
+pages:
+  stage: publish
+  tags:
+    - linux
+  script:
+    - echo "Creating Gitlab pages"
+  artifacts:
     paths:
       - public
