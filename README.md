@@ -1,7 +1,10 @@
 [![coverage](https://cbollige.insidelabspages.mathworks.com/matlab-ci-workshop-sko-2025/coverageBadge.svg)](https://cbollige.insidelabspages.mathworks.com/matlab-ci-workshop-sko-2025/code-coverage/cobertura-coverage.html)
 [![tests](https://cbollige.insidelabspages.mathworks.com/matlab-ci-workshop-sko-2025/testBadge.svg)](https://cbollige.insidelabspages.mathworks.com/matlab-ci-workshop-sko-2025/test-reports/junit.html)
 [![pipeline](https://insidelabs-git.mathworks.com/cbollige/matlab-ci-workshop-sko-2025/badges/main/pipeline.svg)](https://insidelabs-git.mathworks.com/cbollige/matlab-ci-workshop-sko-2025/-/commits/main)
-![Static Badge](https://img.shields.io/badge/PFT-Workshop-blue)
+
+Travelling Salesman apps: 
+- <https://cbollige.insidelabspages.mathworks.com/matlab-ci-workshop-sko-2025/>
+- <https://ipws-webapps.mathworks.com/webapps/home/>
 
 # MATLAB DevOps
 
@@ -16,7 +19,3 @@ test to ensure the deployed algorithm functions correctly. Test reports are
 accessible directly within the CI system for easy review. 
 Additionally, an HTML frontend is provided to showcase how the deployed 
 algorithm can be invoked from JavaScript.
-
-- Travelling Salesman web app: <https://cbollige.insidelabspages.mathworks.com/matlab-ci-workshop-sko-2025/>
-- Test report: <https://cbollige.insidelabspages.mathworks.com/matlab-ci-workshop-sko-2025/test-reports/junit.html>
-- Coverage report: <https://cbollige.insidelabspages.mathworks.com/matlab-ci-workshop-sko-2025/code-coverage/cobertura-coverage.html>
