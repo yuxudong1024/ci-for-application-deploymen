@@ -74,8 +74,8 @@ deploy-job:
     when: always
     paths:
       - public
-  #only:
-  #  - main
+  only:
+    - main
 
 pages:
   stage: publish
@@ -83,8 +83,6 @@ pages:
     - linux
   script:
     - echo "Creating Gitlab pages"
-    #- if (( $CI_BRANCH_NAME != "main" )); cp -r public/branches/$CI_BRANCH_NAME/$CI_COMMIT_SHORT_SHA/* public; fi
-    #- mkdir -p "public/$CI_BRANCH_NAME"; cp public/code-coverage/standalone.html "public/$CI_BRANCH_NAME/standalone.html";
   artifacts:
     paths:
       - public
