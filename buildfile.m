@@ -135,11 +135,12 @@ function deployMPSArchiveTask(context,archiveName,destination,serverUrl)
     end
     mpsResults = compiler.build.productionServerArchive(fullfile(currentProject().RootFolder, ...
         "source","shortestTrip.m"), "ArchiveName", archiveName);
-    [status,message] = copyfile(mpsResults.Files{1}, destination + "\" + archiveName);
+    targetFile = destination + "\" + archiveName + ".ctf";
+    [status,message] = copyfile(mpsResults.Files{1}, targetFile);
     if (~status)
         error(message);
     end
-    disp(destination + "\" + archiveName);
+    disp(targetFile);
     save(context.Task.Outputs.paths,"archiveName","serverUrl");
 end
 
