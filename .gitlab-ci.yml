@@ -53,7 +53,7 @@ deploy-job:
     name: $DOCKER_IMAGE:$IMAGE_TAG
   script:
     - echo "Deploying ctf and web app..."
-    - matlab-batch "mpsArchiveName=['shortestTrip',upper(getenv('GITLAB_USER_LOGIN'))]; disp(mpsArchiveName); mwaArchiveName=['TravelingSalesman',upper(getenv('GITLAB_USER_LOGIN'))]; disp(mwaArchiveName); buildtool deployMPSArchive(mpsArchiveName) deployFrontend deployWebApp(mwaArchiveName) integrationTest -verbosity Verbose"
+    - matlab-batch "mpsArchiveName=['shortestTrip',upper(getenv('GITLAB_USER_LOGIN'))]; disp(mpsArchiveName); disp(upper(getenv('GITLAB_USER_LOGIN'))); buildtool deployMPSArchive(mpsArchiveName) deployFrontend deployWebApp(upper(getenv('GITLAB_USER_LOGIN'))) integrationTest -verbosity Verbose"
   artifacts:
     when: always
     paths:
