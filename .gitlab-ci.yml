@@ -1,36 +1,20 @@
 variables:
-  BUILD_IMAGE: "false"
-  IMAGE_NAME: "matlab-r2024b"
   IMAGE_TAG: "1.0"
+  DOCKER_IMAGE: "registry.insidelabs-git.mathworks.com/cbollige/matlab-devops-registry/matlab-devops-r2024b"
 
 stages:
-  - prepare
   - test
   - deploy
   - publish
-
-prepare-docker-image:
-  stage: prepare
-  tags:
-    - docker
-  script:
-    - DOCKER_IMAGE="$CI_REGISTRY_IMAGE/$IMAGE_NAME:$IMAGE_TAG"
-    - echo "Building and pushing Docker image..."
-    - docker build -t $DOCKER_IMAGE .
-    - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin "$CI_REGISTRY_IMAGE"
-    - docker push $DOCKER_IMAGE
-  rules:
-    - if: '$BUILD_IMAGE == "true"'
 
 unit-test-job:
   stage: test
   tags:
     - docker-exec
   image: 
-    name: $CI_REGISTRY_IMAGE/$IMAGE_NAME:$IMAGE_TAG
+    name: $DOCKER_IMAGE:$IMAGE_TAG
   script:
     - echo "Running unit tests..."
-    - mkdir -p public/branches/$CI_BRANCH_NAME/$CI_COMMIT_SHORT_SHA
     - matlab-batch "buildtool check test -verbosity Verbose"
   coverage: '/Statement: \d+/\d+ \((\d+\.\d+)%\)/'
   artifacts:
@@ -48,7 +32,7 @@ visdiff:
   tags:
     - docker-exec
   image: 
-    name: $CI_REGISTRY_IMAGE/$IMAGE_NAME:$IMAGE_TAG
+    name: $DOCKER_IMAGE:$IMAGE_TAG
   script:
     - echo "Comparing current version of MATLAB app to status in main branch..."
     - git config --global --add safe.directory $CI_PROJECT_DIR
@@ -66,7 +50,7 @@ deploy-job:
   tags:
     - docker-exec
   image: 
-    name: $CI_REGISTRY_IMAGE/$IMAGE_NAME:$IMAGE_TAG
+    name: $DOCKER_IMAGE:$IMAGE_TAG
   script:
     - echo "Deploying ctf and web app..."
     - matlab-batch "mpsArchiveName=['shortestTrip',upper(getenv('GITLAB_USER_LOGIN'))]; disp(mpsArchiveName); mwaArchiveName=['TravelingSalesman',upper(getenv('GITLAB_USER_LOGIN'))]; disp(mwaArchiveName); buildtool deployMPSArchive(mpsArchiveName) deployFrontend deployWebApp(mwaArchiveName) integrationTest -verbosity Verbose"
