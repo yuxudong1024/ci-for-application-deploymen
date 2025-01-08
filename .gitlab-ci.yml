@@ -15,7 +15,6 @@ unit-test-job:
     name: $DOCKER_IMAGE:$IMAGE_TAG
   script:
     - echo "Running unit tests..."
-    - mkdir -p public/branches/$CI_BRANCH_NAME/$CI_COMMIT_SHORT_SHA
     - matlab-batch "buildtool check test -verbosity Verbose"
   coverage: '/Statement: \d+/\d+ \((\d+\.\d+)%\)/'
   artifacts:
@@ -33,7 +32,7 @@ visdiff:
   tags:
     - docker-exec
   image: 
-    name: $CI_REGISTRY_IMAGE/$IMAGE_NAME:$IMAGE_TAG
+    name: $DOCKER_IMAGE:$IMAGE_TAG
   script:
     - echo "Comparing current version of MATLAB app to status in main branch..."
     - git config --global --add safe.directory $CI_PROJECT_DIR
@@ -51,7 +50,7 @@ deploy-job:
   tags:
     - docker-exec
   image: 
-    name: $CI_REGISTRY_IMAGE/$IMAGE_NAME:$IMAGE_TAG
+    name: $DOCKER_IMAGE:$IMAGE_TAG
   script:
     - echo "Deploying ctf and web app..."
     - matlab-batch "mpsArchiveName=['shortestTrip',upper(getenv('GITLAB_USER_LOGIN'))]; disp(mpsArchiveName); mwaArchiveName=['TravelingSalesman',upper(getenv('GITLAB_USER_LOGIN'))]; disp(mwaArchiveName); buildtool deployMPSArchive(mpsArchiveName) deployFrontend deployWebApp(mwaArchiveName) integrationTest -verbosity Verbose"
