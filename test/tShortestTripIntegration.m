@@ -5,9 +5,12 @@ classdef tShortestTripIntegration < matlab.unittest.TestCase
     end
 
     methods (TestClassSetup)
-        function setArchiveName(testCase)
+        function setProperties(testCase)
             if (~isempty(getenv("MPS_ARCHIVE_NAME")))
                 testCase.ArchiveName = getenv("MPS_ARCHIVE_NAME");
+            end
+            if (~isempty(getenv("MPS_URL")))
+                testCase.ServerUrl = getenv("MPS_URL");
             end
         end
     end
