@@ -1,9 +1,9 @@
-[![coverage](https://cbollige.insidelabspages.mathworks.com/matlab-ci-workshop-sko-2025/coverageBadge.svg)](https://cbollige.insidelabspages.mathworks.com/matlab-ci-workshop-sko-2025/code-coverage/cobertura-coverage.html)
-[![tests](https://cbollige.insidelabspages.mathworks.com/matlab-ci-workshop-sko-2025/testBadge.svg)](https://cbollige.insidelabspages.mathworks.com/matlab-ci-workshop-sko-2025/test-reports/junit.html)
-[![pipeline](https://insidelabs-git.mathworks.com/cbollige/matlab-ci-workshop-sko-2025/badges/main/pipeline.svg)](https://insidelabs-git.mathworks.com/cbollige/matlab-ci-workshop-sko-2025/-/commits/main)
+[![coverage](https://acampbel.insidelabspages.mathworks.com/matlab-ci-workshop-sko-2025/coverageBadge.svg)](https://acampbel.insidelabspages.mathworks.com/matlab-ci-workshop-sko-2025/code-coverage/coverage.html)
+[![tests](https://acampbel.insidelabspages.mathworks.com/matlab-ci-workshop-sko-2025/testBadge.svg)](https://acampbel.insidelabspages.mathworks.com/matlab-ci-workshop-sko-2025/test-reports/test-results.html)
+[![pipeline](https://insidelabs-git.mathworks.com/acampbel/matlab-ci-workshop-sko-2025/badges/main/pipeline.svg)](https://insidelabs-git.mathworks.com/acampbel/matlab-ci-workshop-sko-2025/-/commits/main)
 
 Travelling Salesman apps: 
-- <https://cbollige.insidelabspages.mathworks.com/matlab-ci-workshop-sko-2025/>
+- <https://acampbel.insidelabspages.mathworks.com/matlab-ci-workshop-sko-2025/>
 - <https://ipws-webapps.mathworks.com/webapps/home/>
 
 # MATLAB DevOps
