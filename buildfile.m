@@ -15,22 +15,31 @@ function plan = buildfile
     plan("createOutDir").Outputs = outputFolder;
     
     % Add a task to run tests
-    plan("test") = TestTask(SourceFiles="source", ...
+    plan("test:run") = TestTask(SourceFiles="source", ...
+        Tag=["Unit","App"], ...
         TestResults=[ ...
             fullfile(outputFolder,"test-reports","junit.xml"), ...
-            fullfile(outputFolder,"test-reports","junit.html"), ...
-            fullfile(outputFolder,"test-reports","junit.mat")], ...
+            fullfile(outputFolder,"test-reports","test-results.html"), ...
+            fullfile(outputFolder,"test-reports","test-results.mat")], ...
         CodeCoverageResults=[ ...
             fullfile(outputFolder,"code-coverage","cobertura-coverage.xml"), ...
-            fullfile(outputFolder,"code-coverage","cobertura-coverage.html"), ...
-            fullfile(outputFolder,"code-coverage","coverage.mat")], ...
-        Tag="Unit");
-    plan("test").Inputs = plan("createOutDir").Outputs;
-    plan("test").Actions(end+1) = @processTestResults;
-    plan("test").Actions(end+1) = @processCoverageResults;
+            fullfile(outputFolder,"code-coverage","coverage.html"), ...
+            fullfile(outputFolder,"code-coverage","coverage.mat")]);
+
+    plan("test:badges:results") = Task(Actions=@processTestResults,...
+        Inputs=plan("test:run").TestResults(3), ...
+        Outputs=fullfile(outputFolder,"testBadge.svg"));
+
+    plan("test:badges:coverage") = Task(Actions=@processCoverageResults,...
+        Inputs=plan("test:run").CodeCoverageResults(3), ...
+        Outputs=[...
+            fullfile(outputFolder,"code-coverage","standalone.html"), ...
+            fullfile(outputFolder,"coverageBadge.svg")]);
 
     plan("buildWebApp").Inputs = "source/*.mlapp";
-    plan("buildWebApp").Outputs = arrayfun(@webAppArchive, plan("buildWebApp").Inputs.paths);
+    plan("buildWebApp").Outputs = plan("buildWebApp").Inputs. ...
+        replace("source","deploy/webapp"). ...
+        replace(".mlapp",".ctf");
 
     plan("deployWebApp").Inputs = plan("buildWebApp").Outputs;
     
@@ -40,17 +49,11 @@ function plan = buildfile
     plan("deployMPSArchive").Inputs = plan("buildMPSArchive").Outputs;
     plan("deployMPSArchive").Outputs = "shortestTripProductionServerArchive/shortestTripDeployment.mat";
 
-    plan("deployFrontend").Inputs = plan("deployMPSArchive").Outputs;
+    plan("deployFrontend").Inputs = [plan("deployMPSArchive").Outputs, plan("createOutDir").Outputs];
     plan("deployFrontend").Outputs = fullfile(outputFolder,"index.html");
     
-    plan("integrationTest").Inputs = plan("deployMPSArchive").Outputs;
+    plan("integrationTest").Inputs = ["test/*.Integration.m", plan("deployMPSArchive").Outputs];
 
-    % Dependencies
-    plan("test").Dependencies = "createOutDir";
-    plan("deployWebApp").Dependencies = "buildWebApp";
-    plan("deployMPSArchive").Dependencies = "buildMPSArchive";
-    plan("deployFrontend").Dependencies = ["createOutDir", "deployMPSArchive"];
-    plan("integrationTest").Dependencies = "deployMPSArchive";
 
     % Define default tasks
     plan.DefaultTasks = ["check" "test"];
@@ -71,20 +74,18 @@ function createOutDirTask(context)
 end
 
 function processTestResults(context)
-    outputFolder = context.Task.Inputs.paths;
-    testResults = load(fullfile(outputFolder,"test-reports","junit.mat"));
+    testResults = load(context.Task.Inputs.paths);
     testResults = testResults.result;
     disp(testResults);
-    generateTestBadge(testResults, fullfile(outputFolder, "testBadge.svg"));  
+    generateTestBadge(testResults, context.Task.Outputs.paths);  
 end
 
 function processCoverageResults(context)
-    outputFolder = context.Task.Inputs.paths;
-    coverageResults = load(fullfile(outputFolder,"code-coverage", "coverage.mat"));
+    coverageResults = load(context.Task.Inputs.paths);
     coverageResults = coverageResults.coverage;
     disp(coverageResults);
-    generateStandaloneReport(coverageResults,fullfile(outputFolder,"code-coverage","standalone.html"));
-    generateCoverageBadge(coverageResults, fullfile(outputFolder, "coverageBadge.svg"));    
+    generateStandaloneReport(coverageResults, context.Task.Outputs(1).paths);
+    generateCoverageBadge(coverageResults, context.Task.Outputs(2).paths);    
 end
 
 function buildWebAppTask(context)
@@ -98,18 +99,19 @@ function buildWebAppTask(context)
     end
 end
 
-function deployWebAppTask(context,archiveSuffix,destination)
+function deployWebAppTask(context,env,user,destination)
     % Deploy web app to web app server
     arguments
         context 
-        archiveSuffix = "";
-        destination = "\\mathworks\inside\labs\matlab\mwa\TravelingSalesman";
+        env = "DEV";
+        user = getUsername;
+        destination = "//mathworks/inside/labs/matlab/mwa/TravelingSalesman";
     end
     webAppArchive = context.Task.Inputs.paths;
     for i=1:length(webAppArchive)
-        ctfFile=fullfile(currentProject().RootFolder,webAppArchive(i));
+        ctfFile=fullfile(context.Plan.RootFolder,webAppArchive(i));
         [~,name,ext]=fileparts(webAppArchive(i));
-        [status,message] = copyfile(ctfFile, destination + "\" + name + archiveSuffix(i) + ext);
+        [status,message] = copyfile(ctfFile, destination + "-" + env + "/" + name + user + ext);
         if (~status)
             error(message);
         end
@@ -130,12 +132,12 @@ function deployMPSArchiveTask(context,archiveName,destination,serverUrl)
     arguments
         context
         archiveName = "shortestTrip";
-        destination = "\\mathworks\inside\labs\matlab\mps";
+        destination = "//mathworks/inside/labs/matlab/mps";
         serverUrl = "https://ipws-mps.mathworks.com";
     end
     mpsResults = compiler.build.productionServerArchive(fullfile(currentProject().RootFolder, ...
         "source","shortestTrip.m"), "ArchiveName", archiveName);
-    targetFile = destination + "\" + archiveName + ".ctf";
+    targetFile = destination + "/" + archiveName + ".ctf";
     [status,message] = copyfile(mpsResults.Files{1}, targetFile);
     if (~status)
         error(message);
@@ -145,17 +147,23 @@ function deployMPSArchiveTask(context,archiveName,destination,serverUrl)
 end
 
 function integrationTestTask(context)
+    import matlab.unittest.*;    
+    import matlab.unittest.parameters.*;
+    
     % Run integration tests
-    s = load(context.Task.Inputs.paths);
-    setenv("MPS_ARCHIVE_NAME", s.archiveName);
-    setenv("MPS_SERVER_URL", s.serverUrl);
-    results = runtests("tShortestTripIntegration.m");
+    s = load(context.Task.Inputs(2).paths);
+    suite = TestSuite.fromFile(context.Task.Inputs(1).paths,...
+        ExternalParameters=Parameter.fromData(...
+            "serverUrl",{s.archiveName}, ...
+            "archiveName",{s.archiveName}));
+    runner = testrunner;
+    results = runner.run(suite);
     assertSuccess(results);
 end
 
 function deployFrontendTask(context)
     % Deploy index.html with given apiEndpoint to outputFolder
-    s = load(context.Task.Inputs.paths);
+    s = load(context.Task.Inputs(1).paths);
     apiEndpoint = s.serverUrl + "/" + s.archiveName + "/shortestTrip";
     fileContent = fileread(fullfile("source","index_template.html"));
     outputFilePath = context.Task.Outputs.paths;
@@ -245,4 +253,15 @@ function generateCoverageBadge(results,badgeFile)
         "Coverage", percentage, color);
     url = sprintf("%s/%s", "https://img.shields.io/badge", badgeContent);
     websave(badgeFile, url);
+end
+
+function user = getUsername
+user = "UNKNOWN";
+[result, output] = system("whoami");
+if result ==0
+    user = upper(strip(output));
+else
+    disp("Could not find username. Using user ""UNKNOWN"". Output:")
+    disp(output)
+end
 end

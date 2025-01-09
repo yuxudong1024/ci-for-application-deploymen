@@ -9,28 +9,30 @@ classdef tTravelingSalesmanApp < matlab.uitest.TestCase
     end % properties
 
     methods (TestClassSetup)
+
+        function takeScreenshotsOnFailure(testCase)
+            import matlab.unittest.diagnostics.*;
+            testCase.onFailure(ScreenshotDiagnostic);
+        end
         function createApp(testCase)
             % Add a smoke test to check the app actually works
-            fatalAssertWarningFree(testCase, @createAndDestroy)
-
-            function createAndDestroy
-                app = TravelingSalesman;
-                oc = onCleanup(@() delete(app));
-            end % function createAndDestroy
+            fatalAssertWarningFree(testCase, @() delete(TravelingSalesman));
 
             % Ok, it works, create the acutal app and attach a teardown
             testCase.App = TravelingSalesman;
             addTeardown(testCase, @delete, testCase.App);
 
         end % function createApp
+
     end % methods (TestClassSetup)
     
-    methods (Test, ParameterCombination = 'sequential', TestTags={'App'})
+    methods (Test, TestTags={'App'})
         function tGeneratedCities(testCase,nCities)
             % choose number of cities and press the generate button
             testCase.type(testCase.App.Spinner,nCities);
             testCase.press(testCase.App.GenerateButton);  
-            
+            testCase.captureFigure("Generated");
+
             % Check that the number of cities is correct
             verifyLength(testCase, testCase.App.UIAxes.Children, 1);
             xData = testCase.App.UIAxes.Children(1).XData;
@@ -43,6 +45,7 @@ classdef tTravelingSalesmanApp < matlab.uitest.TestCase
             % choose number of cities and press the generate button
             testCase.type(testCase.App.Spinner,nCities);
             testCase.press(testCase.App.GenerateButton);
+            testCase.captureFigure("Generated");
 
             % Get plotted city positions
             xDataOrig = testCase.App.UIAxes.Children(1).XData;
@@ -50,6 +53,7 @@ classdef tTravelingSalesmanApp < matlab.uitest.TestCase
 
             % Press the solve button
             testCase.press(testCase.App.SolveButton);
+            testCase.captureFigure("Solved");
 
             % Check that the plotted path contains the same cities
             verifyLength(testCase, testCase.App.UIAxes.Children, 1);
@@ -63,6 +67,14 @@ classdef tTravelingSalesmanApp < matlab.uitest.TestCase
             verifyTrue(testCase,all(ismember(yData,yDataOrig)));
             verifyEqual(testCase,xData(nCities+1),xData(1));
             verifyEqual(testCase,yData(nCities+1),yData(1));
+        end
+    end
+    methods(Access=private)
+        function captureFigure(testCase, label)
+            import matlab.unittest.diagnostics.*;
+            fig = testCase.App.UIFigure;
+            testCase.log(1, [label, FigureDiagnostic(fig, ...
+                Prefix=label, Formats="png")]);
         end
     end
 end % classdef

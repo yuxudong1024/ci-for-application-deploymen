@@ -53,7 +53,8 @@ deploy-job:
     name: $DOCKER_IMAGE:$IMAGE_TAG
   script:
     - echo "Deploying ctf and web app..."
-    - matlab-batch "disp('Run deployWebApp(archiveSuffix) tasks to deploy the MATLAB app to the Web App Server')"
+    #- matlab-batch "disp('Run deployWebApp(archiveSuffix) tasks to deploy the MATLAB app to the Web App Server')"
+    #- matlab-batch "buildtool deployWebApp('TEST',upper(getenv('GITLAB_USER_LOGIN'))) -verbosity Verbose"
     - matlab-batch "disp('Run deployMPSArchive(mpsArchiveName), deployFrontend, and integrationTest tasks')"
   artifacts:
     when: always
