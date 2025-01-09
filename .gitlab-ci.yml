@@ -52,16 +52,15 @@ deploy-job:
   image: 
     name: $DOCKER_IMAGE:$IMAGE_TAG
   script:
-    - echo "Deploying ctf and web app..."
-    #- matlab-batch "disp('Run deployWebApp(archiveSuffix) tasks to deploy the MATLAB app to the Web App Server')"
-    #- matlab-batch "buildtool deployWebApp('TEST',upper(getenv('GITLAB_USER_LOGIN'))) -verbosity Verbose"
-    - matlab-batch "disp('Run deployMPSArchive(mpsArchiveName), deployFrontend, and integrationTest tasks')"
+  script:
+    - echo "Deploying web app..."    
+    - matlab-batch "buildtool deployWebApp('TEST') -verbosity Verbose"
+    - echo "Deploying production server archive and html frontend..."
+    - matlab-batch "mpsArchiveName=['shortestTrip',upper(getenv('GITLAB_USER_LOGIN'))]; disp(mpsArchiveName); buildtool deployMPSArchive(mpsArchiveName) deployFrontend integrationTest -verbosity Verbose"
   artifacts:
     when: always
     paths:
       - public
-  #only:
-  #  - main
 
 pages:
   stage: publish
@@ -72,5 +71,3 @@ pages:
   artifacts:
     paths:
       - public
-  #only:
-  #  - main

@@ -52,11 +52,11 @@ function plan = buildfile
     plan("deployFrontend").Inputs = [plan("deployMPSArchive").Outputs, plan("createOutDir").Outputs];
     plan("deployFrontend").Outputs = fullfile(outputFolder,"index.html");
     
-    plan("integrationTest").Inputs = ["test/*.Integration.m", plan("deployMPSArchive").Outputs];
+    plan("integrationTest").Inputs = ["test/tShortestTripIntegration.m", plan("deployMPSArchive").Outputs];
 
 
     % Define default tasks
-    plan.DefaultTasks = ["check" "test"];
+    plan.DefaultTasks = ["check" "test" "buildWebApp" "buildMPSArchive"];
 end
 
 function archive=webAppArchive(mlappFile)
@@ -104,17 +104,17 @@ function deployWebAppTask(context,env,user,destination)
     arguments
         context 
         env = "DEV";
-        user = getUsername;
+        user = string(getUsername).replace({'/','\'},"_");
         destination = "//mathworks/inside/labs/matlab/mwa/TravelingSalesman";
     end
     webAppArchive = context.Task.Inputs.paths;
     for i=1:length(webAppArchive)
         ctfFile=fullfile(context.Plan.RootFolder,webAppArchive(i));
         [~,name,ext]=fileparts(webAppArchive(i));
-        [status,message] = copyfile(ctfFile, destination + "-" + env + "/" + name + user + ext);
-        if (~status)
-            error(message);
-        end
+        targetFile = destination + "-" + env + "/" + name + user + ext;
+        [status,message] = copyfile(ctfFile, targetFile, 'f');
+        assert(status==1, message);
+        disp(targetFile);
     end
 end
 
@@ -131,7 +131,7 @@ function deployMPSArchiveTask(context,archiveName,destination,serverUrl)
     % Build production server archive and deploy to production server
     arguments
         context
-        archiveName = "shortestTrip";
+        archiveName = "shortestTripDev";
         destination = "//mathworks/inside/labs/matlab/mps";
         serverUrl = "https://ipws-mps.mathworks.com";
     end
@@ -139,9 +139,7 @@ function deployMPSArchiveTask(context,archiveName,destination,serverUrl)
         "source","shortestTrip.m"), "ArchiveName", archiveName);
     targetFile = destination + "/" + archiveName + ".ctf";
     [status,message] = copyfile(mpsResults.Files{1}, targetFile);
-    if (~status)
-        error(message);
-    end
+    assert(status==1, message);
     disp(targetFile);
     save(context.Task.Outputs.paths,"archiveName","serverUrl");
 end
@@ -152,9 +150,10 @@ function integrationTestTask(context)
     
     % Run integration tests
     s = load(context.Task.Inputs(2).paths);
-    suite = TestSuite.fromFile(context.Task.Inputs(1).paths,...
+    integrationTests = context.Task.Inputs(1).paths;
+    suite = TestSuite.fromFile(integrationTests,...
         ExternalParameters=Parameter.fromData(...
-            "serverUrl",{s.archiveName}, ...
+            "serverUrl",{s.serverUrl}, ...
             "archiveName",{s.archiveName}));
     runner = testrunner;
     results = runner.run(suite);
