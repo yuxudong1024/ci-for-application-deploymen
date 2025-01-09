@@ -111,6 +111,8 @@ function deployWebAppTask(context,env,user,serverUrl,deployFolder)
         serverUrl = "https://ipws-webapps.mathworks.com/webapps/home/";
         deployFolder = "//mathworks/inside/labs/matlab/mwa/TravelingSalesman";
     end
+    dir(deployFolder)
+
     webAppArchive = context.Task.Inputs.paths;
     for i=1:length(webAppArchive)
         ctfFile=fullfile(context.Plan.RootFolder,webAppArchive(i));
