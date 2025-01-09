@@ -107,9 +107,9 @@ function deployWebAppTask(context,env,user,serverUrl,deployFolder)
     arguments
         context 
         env = "DEV";
-        user = string(getUsername).replace({'/','\'},"_");
+        user = getUsername;
         serverUrl = "https://ipws-webapps.mathworks.com/webapps/home/";
-        deployFolder = "//mathworks/inside/labs/matlab/mwa/TravelingSalesman";
+        deployFolder = "\\mathworks\inside\labs\matlab\mwa\TravelingSalesman";
     end
     webAppArchive = context.Task.Inputs.paths;
     for i=1:length(webAppArchive)
@@ -268,7 +268,8 @@ function user = getUsername
 user = "UNKNOWN";
 [result, output] = system("whoami");
 if result ==0
-    user = upper(strip(output));
+    user = string(strip(output));
+    user = upper(replace(user, ["/","\"],"_"));
 else
     disp("Could not find username. Using user ""UNKNOWN"". Output:")
     disp(output)
