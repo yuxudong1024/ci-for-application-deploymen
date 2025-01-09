@@ -54,7 +54,7 @@ deploy-job:
   script:
   script:
     - echo "Deploying web app..."    
-    - matlab-batch "buildtool deployWebApp('TEST') -verbosity Verbose"
+    - matlab-batch "buildtool deployWebApp('TEST',upper(getenv('GITLAB_USER_LOGIN'))) -verbosity Verbose"
     - echo "Deploying production server archive and html frontend..."
     - matlab-batch "mpsArchiveName=['shortestTrip',upper(getenv('GITLAB_USER_LOGIN'))]; disp(mpsArchiveName); buildtool deployMPSArchive(mpsArchiveName) deployFrontend integrationTest -verbosity Verbose"
   artifacts:
