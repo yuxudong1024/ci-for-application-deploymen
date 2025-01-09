@@ -108,7 +108,7 @@ function deployWebAppTask(context,env,user,serverUrl,deployFolder)
     webAppArchive = fullfile(context.Plan.RootFolder, context.Task.Inputs.paths);
     [~,archiveName,ext]=fileparts(webAppArchive);
     targetFile = deployFolder + "\" + archiveName + user + ext;
-    [status,message] = copyfile(webAppArchive, targetFile, 'f');
+    [status,message] = copyfile(webAppArchive, deployFolder, 'f');
     disp(targetFile);
     disp(serverUrl);
     assert(status==1, message);
