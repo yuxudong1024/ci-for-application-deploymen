@@ -111,7 +111,7 @@ function deployWebAppTask(context,env,user,serverUrl,deployFolder)
         serverUrl = "https://ipws-webapps.mathworks.com/webapps/home/";
         deployFolder = "//mathworks/inside/labs/matlab/mwa/TravelingSalesman";
     end
-    dir //mathworks/inside/labs/matlab/mwa
+    dir /mathworks/inside/labs/matlab/mwa
     dir \\mathworks\inside\labs\matlab\mwa
     dir //mathworks/inside/labs/matlab/mwa
 
