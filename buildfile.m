@@ -5,6 +5,9 @@ function plan = buildfile
     % Create a plan from task functions
     plan = buildplan(localfunctions);
     
+    % Define default tasks
+    plan.DefaultTasks = ["check" "test" "buildWebApp" "buildMPSArchive"];
+
     % Enable cleaning derived build outputs
     plan("clean") = CleanTask;
 
@@ -35,7 +38,9 @@ function plan = buildfile
         Outputs=[...
             fullfile(outputFolder,"code-coverage","standalone.html"), ...
             fullfile(outputFolder,"coverageBadge.svg")]);
+    plan("test").Description = "Run all tests and generate test and coverage reports and badges";
 
+    % Add build and deploy tasks
     plan("buildWebApp").Inputs = "source/*.mlapp";
     plan("buildWebApp").Outputs = plan("buildWebApp").Inputs. ...
         replace("source","deploy/webapp"). ...
@@ -54,9 +59,6 @@ function plan = buildfile
     
     plan("integrationTest").Inputs = ["test/tShortestTripIntegration.m", plan("deployMPSArchive").Outputs];
 
-
-    % Define default tasks
-    plan.DefaultTasks = ["check" "test" "buildWebApp" "buildMPSArchive"];
 end
 
 function archive=webAppArchive(mlappFile)
@@ -84,7 +86,7 @@ function processCoverageResults(context)
     coverageResults = load(context.Task.Inputs.paths);
     coverageResults = coverageResults.coverage;
     disp(coverageResults);
-    generateStandaloneReport(coverageResults, context.Task.Outputs(1).paths);
+    [~] = generateStandaloneReport(coverageResults, context.Task.Outputs(1).paths); % Suppress opening of report by assigning to [~]
     generateCoverageBadge(coverageResults, context.Task.Outputs(2).paths);    
 end
 
@@ -113,8 +115,8 @@ function deployWebAppTask(context,env,user,destination)
         [~,name,ext]=fileparts(webAppArchive(i));
         targetFile = destination + "-" + env + "/" + name + user + ext;
         [status,message] = copyfile(ctfFile, targetFile, 'f');
-        assert(status==1, message);
         disp(targetFile);
+        assert(status==1, message);
     end
 end
 
@@ -139,12 +141,13 @@ function deployMPSArchiveTask(context,archiveName,destination,serverUrl)
         "source","shortestTrip.m"), "ArchiveName", archiveName);
     targetFile = destination + "/" + archiveName + ".ctf";
     [status,message] = copyfile(mpsResults.Files{1}, targetFile);
-    assert(status==1, message);
     disp(targetFile);
+    assert(status==1, message);
     save(context.Task.Outputs.paths,"archiveName","serverUrl");
 end
 
 function integrationTestTask(context)
+    % Run integration test for deployed MPS archive
     import matlab.unittest.*;    
     import matlab.unittest.parameters.*;
     
