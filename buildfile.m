@@ -109,7 +109,7 @@ function deployWebAppTask(context,env,user,serverUrl,deployFolder)
     [~,archiveName,ext]=fileparts(webAppArchive);
     archiveName = archiveName + user + ext;
     targetFile = fullfile(deployFolder, archiveName);
-    [status,message] = copyfile(webAppArchive, targetFile, 'f');
+    [status,message] = copyfile(webAppArchive, fullfile(deployFolder), 'f');
     disp(targetFile);
     disp(serverUrl);
     assert(status==1, message);
