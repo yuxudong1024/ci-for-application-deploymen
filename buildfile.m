@@ -130,9 +130,9 @@ function deployMPSArchiveTask(context,archiveName,serverUrl,deployFolder)
         context
         archiveName = "shortestTripDev";
         serverUrl = "https://ipws-mps.mathworks.com";
-        deployFolder = "//mathworks/inside/labs/matlab/mps";
+        deployFolder = "\\mathworks\inside\labs\matlab\mps";
     end
-    targetFile = fullfile(deployFolder, archiveName + ".ctf");
+    targetFile = deployFolder + "\" + archiveName + ".ctf";
     [status,message] = copyfile(fullfile(currentProject().RootFolder,context.Task.Inputs.paths), targetFile);
     disp(targetFile);
     disp(serverUrl);
