@@ -133,10 +133,8 @@ function deployMPSArchiveTask(context,archiveName,serverUrl,deployFolder)
         serverUrl = "https://ipws-mps.mathworks.com";
         deployFolder = "//mathworks/inside/labs/matlab/mps";
     end
-    mpsResults = compiler.build.productionServerArchive(fullfile(currentProject().RootFolder, ...
-        "source","shortestTrip.m"), "ArchiveName", archiveName, "OutputDir", fileparts(context.Task.Outputs.paths));
     targetFile = deployFolder + "/" + archiveName + ".ctf";
-    [status,message] = copyfile(mpsResults.Files{1}, targetFile);
+    [status,message] = copyfile(fullfile(currentProject().RootFolder,context.Task.Inputs.paths), targetFile);
     disp(targetFile);
     disp(serverUrl);
     assert(status==1, message);
