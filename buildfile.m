@@ -47,12 +47,13 @@ function plan = buildfile
         replace(".mlapp",".ctf");
 
     plan("deployWebApp").Inputs = plan("buildWebApp").Outputs;
+    plan("deployWebApp").Outputs = "deploy/webapp/webAppDeployment.mat";
     
     plan("buildMPSArchive").Inputs = "source/shortestTrip.m";
-    plan("buildMPSArchive").Outputs = "shortestTripProductionServerArchive/shortestTrip.ctf";
+    plan("buildMPSArchive").Outputs = "deploy/mpsArchive/shortestTrip.ctf";
 
     plan("deployMPSArchive").Inputs = plan("buildMPSArchive").Outputs;
-    plan("deployMPSArchive").Outputs = "shortestTripProductionServerArchive/shortestTripDeployment.mat";
+    plan("deployMPSArchive").Outputs = "deploy/mpsArchive/shortestTripDeployment.mat";
 
     plan("deployFrontend").Inputs = [plan("deployMPSArchive").Outputs, plan("createOutDir").Outputs];
     plan("deployFrontend").Outputs = fullfile(outputFolder,"index.html");
@@ -101,23 +102,28 @@ function buildWebAppTask(context)
     end
 end
 
-function deployWebAppTask(context,env,user,destination)
+function deployWebAppTask(context,env,user,serverUrl,deployFolder)
     % Deploy web app to web app server
     arguments
         context 
         env = "DEV";
         user = string(getUsername).replace({'/','\'},"_");
-        destination = "//mathworks/inside/labs/matlab/mwa/TravelingSalesman";
+        serverUrl = "https://ipws-webapps.mathworks.com/webapps/home/";
+        deployFolder = "//mathworks/inside/labs/matlab/mwa/TravelingSalesman";
     end
     webAppArchive = context.Task.Inputs.paths;
     for i=1:length(webAppArchive)
         ctfFile=fullfile(context.Plan.RootFolder,webAppArchive(i));
         [~,name,ext]=fileparts(webAppArchive(i));
-        targetFile = destination + "-" + env + "/" + name + user + ext;
+        deployFolder = deployFolder + "-" + env;
+        archiveName = name + user + ext;
+        targetFile = deployFolder + "/" + archiveName;
         [status,message] = copyfile(ctfFile, targetFile, 'f');
         disp(targetFile);
+        disp(serverUrl);
         assert(status==1, message);
     end
+    save(context.Task.Outputs.paths,"archiveName","serverUrl","deployFolder");
 end
 
 function buildMPSArchiveTask(context)
@@ -129,21 +135,22 @@ function buildMPSArchiveTask(context)
         "ArchiveName",archiveName,"OutputDir",outputDir);
 end
 
-function deployMPSArchiveTask(context,archiveName,destination,serverUrl)
+function deployMPSArchiveTask(context,archiveName,serverUrl,deployFolder)
     % Build production server archive and deploy to production server
     arguments
         context
         archiveName = "shortestTripDev";
-        destination = "//mathworks/inside/labs/matlab/mps";
         serverUrl = "https://ipws-mps.mathworks.com";
+        deployFolder = "//mathworks/inside/labs/matlab/mps";
     end
     mpsResults = compiler.build.productionServerArchive(fullfile(currentProject().RootFolder, ...
-        "source","shortestTrip.m"), "ArchiveName", archiveName);
-    targetFile = destination + "/" + archiveName + ".ctf";
+        "source","shortestTrip.m"), "ArchiveName", archiveName, "OutputDir", fileparts(context.Task.Outputs.paths));
+    targetFile = deployFolder + "/" + archiveName + ".ctf";
     [status,message] = copyfile(mpsResults.Files{1}, targetFile);
     disp(targetFile);
+    disp(serverUrl);
     assert(status==1, message);
-    save(context.Task.Outputs.paths,"archiveName","serverUrl");
+    save(context.Task.Outputs.paths,"archiveName","serverUrl","deployFolder");
 end
 
 function integrationTestTask(context)
