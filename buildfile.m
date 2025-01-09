@@ -102,14 +102,13 @@ function deployWebAppTask(context,env,user,serverUrl,deployFolder)
         env = "DEV";
         user = string(getUsername).replace({'/','\'},"_");
         serverUrl = "https://ipws-webapps.mathworks.com/webapps/home/";
-        deployFolder = "//mathworks/inside/labs/matlab/mwa/TravelingSalesman";
+        deployFolder = "\\mathworks\inside\labs\matlab\mwa\TravelingSalesman";
     end
     deployFolder = deployFolder + "-" + env;
     webAppArchive = fullfile(context.Plan.RootFolder, context.Task.Inputs.paths);
     [~,archiveName,ext]=fileparts(webAppArchive);
-    archiveName = archiveName + user + ext;
-    targetFile = fullfile(deployFolder, archiveName);
-    [status,message] = copyfile(webAppArchive, fullfile(deployFolder), 'f');
+    targetFile = deployFolder + "\" + archiveName + user + ext;
+    [status,message] = copyfile(webAppArchive, targetFile, 'f');
     disp(targetFile);
     disp(serverUrl);
     assert(status==1, message);
