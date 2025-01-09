@@ -108,7 +108,7 @@ function deployWebAppTask(context,env,user,serverUrl,deployFolder)
     webAppArchive = fullfile(context.Plan.RootFolder, context.Task.Inputs.paths);
     [~,archiveName,ext]=fileparts(webAppArchive);
     archiveName = archiveName + user + ext;
-    targetFile = deployFolder + "/" + archiveName;
+    targetFile = fullfile(deployFolder, archiveName);
     [status,message] = copyfile(webAppArchive, targetFile, 'f');
     disp(targetFile);
     disp(serverUrl);
@@ -133,7 +133,7 @@ function deployMPSArchiveTask(context,archiveName,serverUrl,deployFolder)
         serverUrl = "https://ipws-mps.mathworks.com";
         deployFolder = "//mathworks/inside/labs/matlab/mps";
     end
-    targetFile = deployFolder + "/" + archiveName + ".ctf";
+    targetFile = fullfile(deployFolder, archiveName + ".ctf");
     [status,message] = copyfile(fullfile(currentProject().RootFolder,context.Task.Inputs.paths), targetFile);
     disp(targetFile);
     disp(serverUrl);
