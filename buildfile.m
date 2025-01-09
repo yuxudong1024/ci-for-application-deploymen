@@ -102,7 +102,7 @@ function deployWebAppTask(context,env,user,serverUrl,deployFolder)
         env = "DEV";
         user = string(getUsername).replace({'/','\'},"_");
         serverUrl = "https://ipws-webapps.mathworks.com/webapps/home/";
-        deployFolder = "\\mathworks\inside\labs\matlab\mwa\TravelingSalesman";
+        deployFolder = "//mathworks/inside/labs/matlab/mwa/TravelingSalesman";
     end
     deployFolder = deployFolder + "-" + env;
     webAppArchive = fullfile(context.Plan.RootFolder, context.Task.Inputs.paths);
@@ -131,7 +131,7 @@ function deployMPSArchiveTask(context,archiveName,serverUrl,deployFolder)
         context
         archiveName = "shortestTripDev";
         serverUrl = "https://ipws-mps.mathworks.com";
-        deployFolder = "\\mathworks\inside\labs\matlab\mps";
+        deployFolder = "//mathworks/inside/labs/matlab/mps";
     end
     mpsResults = compiler.build.productionServerArchive(fullfile(currentProject().RootFolder, ...
         "source","shortestTrip.m"), "ArchiveName", archiveName, "OutputDir", fileparts(context.Task.Outputs.paths));
