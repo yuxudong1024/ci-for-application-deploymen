@@ -82,7 +82,7 @@ integ-test-job:
     - echo "Running integration test on production"    
     - matlab-batch "buildtool integrationTest"
   artifacts:
-    when:always
+    when: always
     paths:
       - deploy
       - .buildtool
