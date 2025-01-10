@@ -54,7 +54,7 @@ build-job:
     name: $DOCKER_IMAGE:$IMAGE_TAG
   script:
     - echo "Building web app..."    
-    - matlab-batch "buildtool buildWebApp('TEST',upper(getenv('GITLAB_USER_LOGIN'))) -verbosity Verbose"
+    - matlab-batch "buildtool buildWebApp -verbosity Verbose"
     #- echo "Deploying production server archive and html frontend..."
     #- matlab-batch "mpsArchiveName=['shortestTrip',upper(getenv('GITLAB_USER_LOGIN'))]; disp(mpsArchiveName); buildtool deployMPSArchive(mpsArchiveName) deployFrontend integrationTest -verbosity Verbose"
   artifacts:
