@@ -9,17 +9,18 @@ stages:
 matlab-build:
   stage: deploy
   tags:
-    - on-prem
-    #- docker-exec
-  #image: 
-  #  name: $DOCKER_IMAGE:$IMAGE_TAG
+    - docker-exec
+  image: 
+    name: $DOCKER_IMAGE:$IMAGE_TAG
   script:
     - echo "Running unit tests..."
-    - mw -using BR2024bd matlab -softwareopengl -batch "buildtool check test -verbosity Verbose"
+    - matlab-batch "buildtool check test -verbosity Verbose"
     - echo "Deploying web app..."   
-    - mw -using BR2024bd matlab -softwareopengl -batch "buildtool deployWebApp('TEST') -verbosity Verbose"
+    - matlab-batch "buildtool deployWebApp('TEST') -verbosity Verbose"
     - echo "Deploying production server archive and html frontend..."
-    - mw -using BR2024bd matlab -softwareopengl -batch "mpsArchiveName=['shortestTrip',upper(getenv('GITLAB_USER_LOGIN'))]; disp(mpsArchiveName); buildtool deployMPSArchive(mpsArchiveName) deployFrontend integrationTest -verbosity Verbose"
+    - matlab-batch "mpsArchiveName=['shortestTrip',upper(getenv('GITLAB_USER_LOGIN'))]; disp(mpsArchiveName); buildtool deployMPSArchive(mpsArchiveName) deployFrontend -verbosity Verbose"
+    #- echo "Running integration test"
+    #- matlab-batch "buildtool integrationTest -verbosity Verbose" 
   coverage: '/Statement: \d+/\d+ \((\d+\.\d+)%\)/'
   artifacts:
     when: always

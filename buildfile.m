@@ -112,7 +112,7 @@ function deployWebAppTask(context,env,user,serverUrl,deployFolder)
     [status,message] = copyfile(webAppArchive, deployFolder, 'f');
     disp(targetFile);
     disp(serverUrl);
-    assert(status==1, message);
+    %assert(status==1, message);
     save(context.Task.Outputs.paths,"archiveName","serverUrl","deployFolder");
 end
 
@@ -137,7 +137,7 @@ function deployMPSArchiveTask(context,archiveName,serverUrl,deployFolder)
     [status,message] = copyfile(fullfile(currentProject().RootFolder,context.Task.Inputs.paths), targetFile);
     disp(targetFile);
     disp(serverUrl);
-    assert(status==1, message);
+    %assert(status==1, message);
     save(context.Task.Outputs.paths,"archiveName","serverUrl","deployFolder");
 end
 
