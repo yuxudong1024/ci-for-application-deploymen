@@ -48,7 +48,7 @@ visdiff:
 deploy-job:
   stage: deploy
   tags:
-    - docker-exec
+    - on-prem
   image: 
     name: $DOCKER_IMAGE:$IMAGE_TAG
   script:
