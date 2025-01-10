@@ -62,6 +62,7 @@ build-job:
     paths:
       - deploy
       - .buildtool
+      - public
 
 deploy-job:
   stage: deploy
