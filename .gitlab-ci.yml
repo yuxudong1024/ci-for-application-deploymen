@@ -80,7 +80,7 @@ integ-test-job:
     name: $DOCKER_IMAGE:$IMAGE_TAG
   script:
     - echo "Running integration test on production"    
-    - matlab-batch "buildtool integrationTestTask"
+    - matlab-batch "buildtool integrationTest"
       
 pages:
   stage: publish
