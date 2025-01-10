@@ -124,8 +124,8 @@ function deployWebAppTask(context,env,user,serverUrl,deployFolder)
         targetFile = deployFolder + "/" + archiveName;
         if isfolder(deployFolder)
             [status,message] = copyfile(ctfFile, targetFile, 'f');
+            assert(status==1, message);
         end
-        assert(status==1, message);
         disp(targetFile);
         disp(serverUrl);
     end
