@@ -150,12 +150,13 @@ function deployMPSArchiveTask(context,env, user, serverUrl,deployFolder)
         serverUrl = "https://ipws-mps.mathworks.com";
         deployFolder = "//mathworks/inside/labs/matlab/mps";
     end
-    [~, archiveName] = fileparts(context.Task.Inputs.paths);
+    archivePath = context.Task.Inputs.paths;
+    [~, archiveName] = fileparts(archivePath);
     deployedArchiveName = strjoin([archiveName, env, user],"_");
     targetFile = deployFolder + "/" + deployedArchiveName + ".ctf";
     
     if isfolder(deployFolder)
-        [status, message] = copyfile(mpsResults.Files{1}, targetFile);
+        [status, message] = copyfile(archivePath, targetFile);
         assert(status==1, message);
     end
     disp(targetFile);
@@ -280,7 +281,7 @@ user = "unknown";
 [result, output] = system("whoami");
 if result ==0
     user = string(strip(output));
-    user = extractAfter(user, "/");
+    user = replace(user, extractBefore(user, "/")+"/", "");
 else
     disp("Could not find username. Using user ""unknown"". Output:")
     disp(output)
