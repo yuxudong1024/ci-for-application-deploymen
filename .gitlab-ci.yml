@@ -58,7 +58,6 @@ build-job:
     #- echo "Deploying production server archive and html frontend..."
     #- matlab-batch "mpsArchiveName=['shortestTrip',upper(getenv('GITLAB_USER_LOGIN'))]; disp(mpsArchiveName); buildtool deployMPSArchive(mpsArchiveName) deployFrontend integrationTest -verbosity Verbose"
   artifacts:
-    when: always
     paths:
       - deploy
 
@@ -69,10 +68,6 @@ deploy-job:
   script:
     - echo "Deploying web app..."    
     - cp deploy/webapp/TravelingSalesman.ctf "//mathworks/inside/labs/matlab/mwa/TravelingSalesman-TEST/TravelingSalesman_$GITLAB_USER_LOGIN.ctf"
-  artifacts:
-    when: always
-    paths:
-      - deploy
 
 pages:
   stage: publish
