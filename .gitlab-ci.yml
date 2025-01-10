@@ -3,11 +3,14 @@ variables:
   DOCKER_IMAGE: "registry.insidelabs-git.mathworks.com/cbollige/matlab-devops-registry/matlab-devops-r2024b"
 
 stages:
+  - test
+  - build
   - deploy
+  - integ-test
   - publish
 
-matlab-build:
-  stage: deploy
+unit-test-job:
+  stage: test
   tags:
     - docker-exec
   image: 
@@ -15,12 +18,6 @@ matlab-build:
   script:
     - echo "Running unit tests..."
     - matlab-batch "buildtool check test -verbosity Verbose"
-    - echo "Deploying web app..."   
-    - matlab-batch "buildtool deployWebApp('TEST') -verbosity Verbose"
-    - echo "Deploying production server archive and html frontend..."
-    - matlab-batch "mpsArchiveName=['shortestTrip',upper(getenv('GITLAB_USER_LOGIN'))]; disp(mpsArchiveName); buildtool deployMPSArchive(mpsArchiveName) deployFrontend -verbosity Verbose"
-    #- echo "Running integration test"
-    #- matlab-batch "buildtool integrationTest -verbosity Verbose" 
   coverage: '/Statement: \d+/\d+ \((\d+\.\d+)%\)/'
   artifacts:
     when: always
@@ -32,25 +29,63 @@ matlab-build:
         coverage_format: cobertura
         path: public/code-coverage/cobertura-coverage.xml
 
-#visdiff:
-#  stage: deploy
-#  tags:
-#    - docker-exec
-#  image: 
-#    name: $DOCKER_IMAGE:$IMAGE_TAG
-#  script:
-#    - echo "Comparing current version of MATLAB app to status in main branch..."
-#    - git config --global --add safe.directory $CI_PROJECT_DIR
-#    - matlab-batch "buildtool publishAppDiffToMain('visdiff') -verbosity Verbose"
-#    - echo "Report published as artifact in visdiff folder"
-#  dependencies: [] # Prevent downloading of artifacts from previous jobs
-#  artifacts:
-#    paths:
-#      - visdiff/*
-#  except:
-#    - main
+# visdiff:
+#   stage: test
+#   tags:
+#     - docker-exec
+#   image: 
+#     name: $DOCKER_IMAGE:$IMAGE_TAG
+#   script:
+#     - echo "Comparing current version of MATLAB app to status in main branch..."
+#     - git config --global --add safe.directory $CI_PROJECT_DIR
+#     - matlab-batch "buildtool publishAppDiffToMain('visdiff') -verbosity Verbose"
+#     - echo "Report published as artifact in visdiff folder"
+#   dependencies: [] # Prevent downloading of artifacts from previous jobs
+#   artifacts:
+#     paths:
+#       - visdiff/*
+#   except:
+#     - main
 
+build-job:
+  stage: build
+  tags:
+    - docker-exec
+  image: 
+    name: $DOCKER_IMAGE:$IMAGE_TAG
+  script:
+    - echo "Building web app..."    
+    - matlab-batch "buildtool deployWebApp('TEST','$GITLAB_USER_LOGIN') -verbosity Verbose"
+    #- echo "Deploying production server archive and html frontend..."
+    - matlab-batch "buildtool deployFrontend deployMPSArchive('TEST', '$GITLAB_USER_LOGIN') -verbosity Verbose"
+  artifacts:
+    paths:
+      - deploy
+      - .buildtool
 
+deploy-job:
+  stage: deploy
+  tags:
+    - on-prem
+  script:
+    - echo "Deploying web app..."    
+    - cp deploy/webapp/TravelingSalesman.ctf "//mathworks/inside/labs/matlab/mwa/TravelingSalesman-TEST/TravelingSalesman_$GITLAB_USER_LOGIN.ctf"
+    - cp deploy/mpsArchive/shortestTrip.ctf "//mathworks/inside/labs/matlab/mps/shortestTrip_TEST_$GITLAB_USER_LOGIN.ctf"
+
+integ-test-job:
+  stage: integ-test
+  tags:
+    - docker-exec
+  image: 
+    name: $DOCKER_IMAGE:$IMAGE_TAG
+  script:
+    - echo "Running integration test on production"    
+    - matlab-batch "buildtool deployMPSArchive('TEST','$GITLAB_USER_LOGIN') integrationTest"
+  artifacts:
+    when: always
+    paths:
+      - deploy
+      - .buildtool
 pages:
   stage: publish
   tags:
