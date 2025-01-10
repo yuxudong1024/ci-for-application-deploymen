@@ -29,11 +29,11 @@ function plan = buildfile
             fullfile(outputFolder,"code-coverage","coverage.html"), ...
             fullfile(outputFolder,"code-coverage","coverage.mat")]);
 
-    plan("test:badges:results") = Task(Actions=@processTestResults,...
+    plan("test:badges:results") = Task(Actions=@processTestResults, ...
         Inputs=plan("test:run").TestResults(3), ...
         Outputs=fullfile(outputFolder,"testBadge.svg"));
 
-    plan("test:badges:coverage") = Task(Actions=@processCoverageResults,...
+    plan("test:badges:coverage") = Task(Actions=@processCoverageResults, ...
         Inputs=plan("test:run").CodeCoverageResults(3), ...
         Outputs=[...
             fullfile(outputFolder,"code-coverage","standalone.html"), ...
@@ -107,7 +107,8 @@ function deployWebAppTask(context,env,user,serverUrl,deployFolder)
     deployFolder = deployFolder + "-" + env;
     webAppArchive = fullfile(context.Plan.RootFolder, context.Task.Inputs.paths);
     [~,archiveName,ext]=fileparts(webAppArchive);
-    targetFile = deployFolder + "\" + archiveName + user + ext;
+    archiveName = archiveName + user;
+    targetFile = fullfile(deployFolder, archiveName + ext);
     [status,message] = copyfile(webAppArchive, deployFolder, 'f');
     disp(targetFile);
     disp(serverUrl);
@@ -132,7 +133,7 @@ function deployMPSArchiveTask(context,archiveName,serverUrl,deployFolder)
         serverUrl = "https://ipws-mps.mathworks.com";
         deployFolder = "\\mathworks\inside\labs\matlab\mps";
     end
-    targetFile = deployFolder + "\" + archiveName + ".ctf";
+    targetFile = fullfile(deployFolder, archiveName + ".ctf");
     [status,message] = copyfile(fullfile(currentProject().RootFolder,context.Task.Inputs.paths), targetFile);
     disp(targetFile);
     disp(serverUrl);
