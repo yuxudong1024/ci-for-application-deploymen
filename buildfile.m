@@ -182,7 +182,7 @@ end
 function deployFrontendTask(context)
     % Deploy index.html with given apiEndpoint to outputFolder
     s = load(context.Task.Inputs(1).paths);
-    apiEndpoint = s.serverUrl + "/" + s.archiveName + "/shortestTrip";
+    apiEndpoint = s.serverUrl + "/" + s.deployedArchiveName + "/shortestTrip";
     fileContent = fileread(fullfile("source","index_template.html"));
     outputFilePath = context.Task.Outputs.paths;
 
