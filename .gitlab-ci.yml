@@ -4,6 +4,7 @@ variables:
 
 stages:
   - deploy
+  - integ-test
   - publish
 
 matlab-build:
