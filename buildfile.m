@@ -29,25 +29,25 @@ function plan = buildfile
             fullfile(outputFolder,"code-coverage","coverage.html"), ...
             fullfile(outputFolder,"code-coverage","coverage.mat")]);
 
-    plan("test:badges:results") = Task(Actions=@processTestResults,...
+    plan("test:badges:results") = Task(Actions=@processTestResults, ...
         Inputs=plan("test:run").TestResults(3), ...
         Outputs=fullfile(outputFolder,"testBadge.svg"));
 
-    plan("test:badges:coverage") = Task(Actions=@processCoverageResults,...
+    plan("test:badges:coverage") = Task(Actions=@processCoverageResults, ...
         Inputs=plan("test:run").CodeCoverageResults(3), ...
         Outputs=[...
             fullfile(outputFolder,"code-coverage","standalone.html"), ...
             fullfile(outputFolder,"coverageBadge.svg")]);
     plan("test").Description = "Run all tests and generate test and coverage reports and badges";
 
-    % Add build and deploy tasks
-    plan("buildWebApp").Inputs = "source/*.mlapp";
-    plan("buildWebApp").Outputs = plan("buildWebApp").Inputs. ...
-        replace("source","deploy/webapp"). ...
-        replace(".mlapp",".ctf");
+    % Add build and deploy tasks   
+    plan("buildWebApp").Inputs = "source/TravelingSalesman.mlapp";
+    plan("buildWebApp").Outputs = ["deploy/webapp/TravelingSalesman" ...
+        "deploy/webapp/TravelingSalesman/TravelingSalesman.ctf"];
 
-    plan("deployWebApp").Inputs = plan("buildWebApp").Outputs;
-    plan("deployWebApp").Outputs = "deploy/webapp/webAppDeployment.mat";
+    plan("deployWebApp").Inputs = plan("buildWebApp").Outputs(2);
+    plan("deployWebApp").Outputs = plan("buildWebApp").Outputs(1) ...
+        .transform(@(p) fullfile(p,"webAppDeployment.mat"));
     
     plan("buildMPSArchive").Inputs = "source/shortestTrip.m";
     plan("buildMPSArchive").Outputs = "deploy/mpsArchive/shortestTrip.ctf";
@@ -63,11 +63,6 @@ function plan = buildfile
         plan("deployMPSArchive").Outputs, ...
         plan("deployFrontend").Outputs];
 
-end
-
-function archive=webAppArchive(mlappFile)
-    [~,name] = fileparts(mlappFile);
-    archive = name + "WebAppArchive/" + name + ".ctf";
 end
 
 function createOutDirTask(context)
@@ -97,12 +92,10 @@ end
 function buildWebAppTask(context)
     % Build web app
     mlappFile = context.Task.Inputs.paths;
-    webAppArchive = context.Task.Outputs.paths;
-    for i=1:length(mlappFile)
-        [outputDir,archiveName]=fileparts(webAppArchive(i));
-        compiler.build.webAppArchive(mlappFile(i), ...
-            "ArchiveName",archiveName,"OutputDir",outputDir);
-    end
+    outputDir = context.Task.Outputs(1).paths;
+    [~, archiveName] = fileparts(context.Task.Outputs(2).paths);
+    results = compiler.build.webAppArchive(mlappFile, ArchiveName=archiveName, OutputDir=outputDir);
+    disp(results);
 end
 
 function deployWebAppTask(context,env,user,serverUrl,deployFolder)
@@ -129,6 +122,15 @@ function deployWebAppTask(context,env,user,serverUrl,deployFolder)
         disp(targetFile);
         disp(serverUrl);
     end
+    deployFolder = deployFolder + "-" + env;
+    webAppArchive = fullfile(context.Plan.RootFolder, context.Task.Inputs.paths);
+    [~,archiveName,ext]=fileparts(webAppArchive);
+    archiveName = archiveName + user;
+    targetFile = fullfile(deployFolder, archiveName + ext);
+    [status,message] = copyfile(webAppArchive, deployFolder, 'f');
+    disp(targetFile);
+    disp(serverUrl);
+    %assert(status==1, message);
     save(context.Task.Outputs.paths,"archiveName","serverUrl","deployFolder");
 end
 
@@ -148,7 +150,7 @@ function deployMPSArchiveTask(context,env, user, serverUrl,deployFolder)
         env = "DEV";
         user = getUsername;
         serverUrl = "https://ipws-mps.mathworks.com";
-        deployFolder = "//mathworks/inside/labs/matlab/mps";
+        deployFolder = "\\mathworks\inside\labs\matlab\mps";
     end
     archivePath = context.Task.Inputs.paths;
     [~, archiveName] = fileparts(archivePath);
