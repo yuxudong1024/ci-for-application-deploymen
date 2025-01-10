@@ -68,7 +68,7 @@ deploy-job:
     - on-prem
   script:
     - echo "Deploying web app..."    
-    - cp deploy/webapp/TravelingSalesman.ctf "/mathworks/inside/labs/matlab/mathworks/inside/labs/matlab/mwa/TravelingSalesman-TEST/TravelingSalesman_$GITLAB_USER_LOGIN.ctf"
+    - cp deploy/webapp/TravelingSalesman.ctf "//mathworks/inside/labs/matlab/mathworks/inside/labs/matlab/mwa/TravelingSalesman-TEST/TravelingSalesman_$GITLAB_USER_LOGIN.ctf"
   artifacts:
     when: always
     paths:
