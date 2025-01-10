@@ -80,7 +80,7 @@ integ-test-job:
     name: $DOCKER_IMAGE:$IMAGE_TAG
   script:
     - echo "Running integration test on production"    
-    - matlab-batch "buildtool integrationTest"
+    - matlab-batch "buildtool deployMPSArchive('TEST','$GITLAB_USER_LOGIN') integrationTest"
   artifacts:
     when: always
     paths:
