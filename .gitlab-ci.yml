@@ -4,6 +4,7 @@ variables:
 
 stages:
   - test
+  - build
   - deploy
   - publish
 
@@ -45,21 +46,33 @@ visdiff:
   except:
     - main
 
+build-job:
+  stage: build
+  tags:
+    - docker-exec
+  image: 
+    name: $DOCKER_IMAGE:$IMAGE_TAG
+  script:
+    - echo "Building web app..."    
+    - matlab-batch "buildtool buildWebApp('TEST',upper(getenv('GITLAB_USER_LOGIN'))) -verbosity Verbose"
+    #- echo "Deploying production server archive and html frontend..."
+    #- matlab-batch "mpsArchiveName=['shortestTrip',upper(getenv('GITLAB_USER_LOGIN'))]; disp(mpsArchiveName); buildtool deployMPSArchive(mpsArchiveName) deployFrontend integrationTest -verbosity Verbose"
+  artifacts:
+    when: always
+    paths:
+      - deploy
+
 deploy-job:
   stage: deploy
   tags:
     - on-prem
-  image: 
-    name: $DOCKER_IMAGE:$IMAGE_TAG
   script:
     - echo "Deploying web app..."    
-    - matlab-batch "buildtool deployWebApp('TEST',upper(getenv('GITLAB_USER_LOGIN'))) -verbosity Verbose"
-    - echo "Deploying production server archive and html frontend..."
-    - matlab-batch "mpsArchiveName=['shortestTrip',upper(getenv('GITLAB_USER_LOGIN'))]; disp(mpsArchiveName); buildtool deployMPSArchive(mpsArchiveName) deployFrontend integrationTest -verbosity Verbose"
+    - cp deploy/webapp/TravelingSalesman.ctf "/mathworks/inside/labs/matlab/mathworks/inside/labs/matlab/mwa/TravelingSalesman-TEST/TravelingSalesman_$GITLAB_USER_LOGIN.ctf"
   artifacts:
     when: always
     paths:
-      - public
+      - deploy
 
 pages:
   stage: publish
