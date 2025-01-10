@@ -52,7 +52,6 @@ deploy-job:
   image: 
     name: $DOCKER_IMAGE:$IMAGE_TAG
   script:
-  script:
     - echo "Deploying web app..."    
     - matlab-batch "buildtool deployWebApp('TEST',upper(getenv('GITLAB_USER_LOGIN'))) -verbosity Verbose"
     - echo "Deploying production server archive and html frontend..."
