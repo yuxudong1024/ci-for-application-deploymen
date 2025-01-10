@@ -282,6 +282,7 @@ user = "unknown";
 if result ==0
     user = string(strip(output));
     user = replace(user, extractBefore(user, "/")+"/", "");
+    user = replace(user, extractBefore(user, "\")+"\", "");
 else
     disp("Could not find username. Using user ""unknown"". Output:")
     disp(output)
