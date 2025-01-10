@@ -253,12 +253,12 @@ function generateCoverageBadge(results,badgeFile)
 end
 
 function user = getUsername
-user = "UNKNOWN";
-[result, output] = system("whoami");
-if result ==0
-    user = upper(strip(output));
-else
-    disp("Could not find username. Using user ""UNKNOWN"". Output:")
-    disp(output)
-end
+    user = "UNKNOWN";
+    [result, output] = system("whoami");
+    if result ==0
+        user = upper(strip(output));
+    else
+        disp("Could not find username. Using user ""UNKNOWN"". Output:")
+        disp(output)
+    end
 end
