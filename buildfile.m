@@ -58,7 +58,10 @@ function plan = buildfile
     plan("deployFrontend").Inputs = [plan("deployMPSArchive").Outputs, plan("createOutDir").Outputs];
     plan("deployFrontend").Outputs = fullfile(outputFolder,"index.html");
     
-    plan("integrationTest").Inputs = ["test/tShortestTripIntegration.m", plan("deployMPSArchive").Outputs];
+    plan("integrationTest").Inputs = [...
+        "test/tShortestTripIntegration.m", ...
+        plan("deployMPSArchive").Outputs, ...
+        plan("deployFrontend").Outputs];
 
 end
 
@@ -111,16 +114,13 @@ function deployWebAppTask(context,env,user,serverUrl,deployFolder)
         serverUrl = "https://ipws-webapps.mathworks.com/webapps/home/";
         deployFolder = "//mathworks/inside/labs/matlab/mwa/TravelingSalesman";
     end
-    dir /mathworks/inside/labs/matlab/mwa
-    dir \\mathworks\inside\labs\matlab\mwa
-    dir //mathworks/inside/labs/matlab/mwa
 
     webAppArchive = context.Task.Inputs.paths;
     for i=1:length(webAppArchive)
         ctfFile=fullfile(context.Plan.RootFolder,webAppArchive(i));
         [~,name,ext]=fileparts(webAppArchive(i));
         deployFolder = deployFolder + "-" + env;
-        archiveName = name + user + ext;
+        archiveName = name + "_" + user + ext;
         targetFile = deployFolder + "/" + archiveName;
         [status,message] = copyfile(ctfFile, targetFile, 'f');
         disp(targetFile);
@@ -139,22 +139,27 @@ function buildMPSArchiveTask(context)
         "ArchiveName",archiveName,"OutputDir",outputDir);
 end
 
-function deployMPSArchiveTask(context,archiveName,serverUrl,deployFolder)
+function deployMPSArchiveTask(context,env, user, serverUrl,deployFolder)
     % Build production server archive and deploy to production server
     arguments
         context
-        archiveName = "shortestTripDev";
+        env = "DEV";
+        user = getUsername;
         serverUrl = "https://ipws-mps.mathworks.com";
         deployFolder = "//mathworks/inside/labs/matlab/mps";
     end
-    mpsResults = compiler.build.productionServerArchive(fullfile(currentProject().RootFolder, ...
-        "source","shortestTrip.m"), "ArchiveName", archiveName, "OutputDir", fileparts(context.Task.Outputs.paths));
-    targetFile = deployFolder + "/" + archiveName + ".ctf";
-    [status,message] = copyfile(mpsResults.Files{1}, targetFile);
+    [~, archiveName] = fileparts(context.Task.Inputs.paths);
+    deployedArchiveName = strjoin([archiveName, env, user],"_");
+    targetFile = deployFolder + "/" + deployedArchiveName + ".ctf";
+    
+    if isfolder(deployFolder)
+        [status, message] = copyfile(mpsResults.Files{1}, targetFile);
+        assert(status==1, message);
+    end
     disp(targetFile);
     disp(serverUrl);
-    assert(status==1, message);
-    save(context.Task.Outputs.paths,"archiveName","serverUrl","deployFolder");
+    
+    save(context.Task.Outputs.paths,"deployedArchiveName","serverUrl");
 end
 
 function integrationTestTask(context)
@@ -168,7 +173,7 @@ function integrationTestTask(context)
     suite = TestSuite.fromFile(integrationTests,...
         ExternalParameters=Parameter.fromData(...
             "serverUrl",{s.serverUrl}, ...
-            "archiveName",{s.archiveName}));
+            "archiveName",{s.deployedArchiveName}));
     runner = testrunner;
     results = runner.run(suite);
     assertSuccess(results);
@@ -269,13 +274,13 @@ function generateCoverageBadge(results,badgeFile)
 end
 
 function user = getUsername
-user = "UNKNOWN";
+user = "unknown";
 [result, output] = system("whoami");
 if result ==0
     user = string(strip(output));
-    user = upper(replace(user, ["/","\"],"_"));
+    user = extractAfter(user, "/");
 else
-    disp("Could not find username. Using user ""UNKNOWN"". Output:")
+    disp("Could not find username. Using user ""unknown"". Output:")
     disp(output)
 end
 end

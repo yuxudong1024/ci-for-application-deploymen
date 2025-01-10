@@ -6,6 +6,7 @@ stages:
   - test
   - build
   - deploy
+  - integ-test
   - publish
 
 unit-test-job:
@@ -56,10 +57,11 @@ build-job:
     - echo "Building web app..."    
     - matlab-batch "buildtool buildWebApp -verbosity Verbose"
     #- echo "Deploying production server archive and html frontend..."
-    #- matlab-batch "mpsArchiveName=['shortestTrip',upper(getenv('GITLAB_USER_LOGIN'))]; disp(mpsArchiveName); buildtool deployMPSArchive(mpsArchiveName) deployFrontend integrationTest -verbosity Verbose"
+    - matlab-batch "deployFrontend deployMPSArchiveTask('TEST', getenv('GITLAB_USER_LOGIN')) -verbosity Verbose"
   artifacts:
     paths:
       - deploy
+      - .buildtool
 
 deploy-job:
   stage: deploy
@@ -68,7 +70,18 @@ deploy-job:
   script:
     - echo "Deploying web app..."    
     - cp deploy/webapp/TravelingSalesman.ctf "//mathworks/inside/labs/matlab/mwa/TravelingSalesman-TEST/TravelingSalesman_$GITLAB_USER_LOGIN.ctf"
+    - cp deploy/mpsArchive/shortestTrip.ctf "//mathworks/inside/labs/matlab/mps/shortestPath_TEST_$GITLAB_USER_LOGIN.ctf"
 
+integ-test-job:
+  stage: integ-test
+  tags:
+    - docker-exec
+  image: 
+    name: $DOCKER_IMAGE:$IMAGE_TAG
+  script:
+    - echo "Running integration test on production"    
+    - matlab-batch "buildtool integrationTestTask"
+      
 pages:
   stage: publish
   tags:
