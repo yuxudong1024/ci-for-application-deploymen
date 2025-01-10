@@ -57,7 +57,7 @@ build-job:
     - echo "Building web app..."    
     - matlab-batch "buildtool buildWebApp -verbosity Verbose"
     #- echo "Deploying production server archive and html frontend..."
-    - matlab-batch "buildtool deployFrontend deployMPSArchiveTask('TEST', getenv('GITLAB_USER_LOGIN')) -verbosity Verbose"
+    - matlab-batch "buildtool deployFrontend deployMPSArchive('TEST', getenv('GITLAB_USER_LOGIN')) -verbosity Verbose"
   artifacts:
     paths:
       - deploy
