@@ -122,10 +122,11 @@ function deployWebAppTask(context,env,user,serverUrl,deployFolder)
         deployFolder = deployFolder + "-" + env;
         archiveName = name + "_" + user + ext;
         targetFile = deployFolder + "/" + archiveName;
-        [status,message] = copyfile(ctfFile, targetFile, 'f');
+        if isfolder(deployFolder)
+            [status,message] = copyfile(ctfFile, targetFile, 'f');
+        assert(status==1, message);
         disp(targetFile);
         disp(serverUrl);
-        assert(status==1, message);
     end
     save(context.Task.Outputs.paths,"archiveName","serverUrl","deployFolder");
 end

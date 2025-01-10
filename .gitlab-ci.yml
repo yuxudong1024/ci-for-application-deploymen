@@ -55,9 +55,9 @@ build-job:
     name: $DOCKER_IMAGE:$IMAGE_TAG
   script:
     - echo "Building web app..."    
-    - matlab-batch "buildtool buildWebApp -verbosity Verbose"
+    - matlab-batch "buildtool deployWebApp('TEST',$GITLAB_USER_LOGIN) -verbosity Verbose"
     #- echo "Deploying production server archive and html frontend..."
-    - matlab-batch "buildtool deployFrontend deployMPSArchive('TEST', getenv('GITLAB_USER_LOGIN')) -verbosity Verbose"
+    - matlab-batch "buildtool deployFrontend deployMPSArchive('TEST', $GITLAB_USER_LOGIN) -verbosity Verbose"
   artifacts:
     paths:
       - deploy
@@ -81,7 +81,11 @@ integ-test-job:
   script:
     - echo "Running integration test on production"    
     - matlab-batch "buildtool integrationTest"
-      
+  artifacts:
+    when:always
+    paths:
+      - deploy
+      - .buildtool
 pages:
   stage: publish
   tags:
