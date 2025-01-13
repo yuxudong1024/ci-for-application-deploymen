@@ -9,20 +9,21 @@ on:
 
 env:
   MLM_LICENSE_TOKEN: ${{ secrets.MLM_LICENSE_TOKEN }}
-  
+  PRODUCT_LIST: MATLAB MATLAB_Test MATLAB_Compiler MATLAB_Compiler MATLAB_Compiler_SDK Optimization_Toolbox Global_Optimization_Toolbox Parallel_Computing_Toolbox MATLAB_Report_Generator
+
 jobs:
 
-  # This workflow contains two jobs called "test" and "compile-webapp"
+  # This workflow contains two jobs called "test" and "compile-deployment"
   test:
     # This job will run for all the OS present in the matrix
     strategy:
       matrix:
-         os: [ubuntu-latest]
+        os: [ubuntu-latest]
         #os: [ubuntu-latest, windows-latest, macos-13]
      
     # The type of runner that the job will run on
     runs-on: ${{ matrix.os }}
- 
+  
     steps:
       - uses: actions/checkout@v4
        
@@ -30,49 +31,148 @@ jobs:
         uses: matlab-actions/setup-matlab@v2
         with:
           cache: true
-          products: |
-            MATLAB
-            Simulink
-            Stateflow
-            Control_System_Toolbox
-            MATLAB_Coder
-            Simulink_Coder
-            Embedded_Coder
-            Simulink_Check
-            Simulink_Coverage
-            Simulink_Test
-            MATLAB_Compiler
-            MATLAB_Compiler_SDK
-            Simulink_Compiler
-            Simscape
-            Simscape_Electrical
-            Parallel_Computing_Toolbox
-            MATLAB_Report_Generator
-            Simulink_Report_Generator
-            MATLAB_Support_Package_for_Arduino_Hardware
-            Simulink_Support_Package_for_Arduino_Hardware
-
+          products: ${{ env.PRODUCT_LIST }}
+            
       - name: Start display server (required for building doc in MATLAB)
         run: |
           Xvfb :99 & 
           echo "DISPLAY=:99" >> $GITHUB_ENV
  
-      - name: Run ${{ matrix.os }} build to run tests on it
-        uses: matlab-actions/run-tests@v2
+      - name: Run Test
+        uses: matlab-actions/run-build@v2
         with:
-          use-parallel: true
-          test-results-junit: test-results/results.xml
-          code-coverage-cobertura: code-coverage/coverage.xml
-
+          tasks: test
+          
       - name: Junit Test Summary
         uses: test-summary/action@v2
         with:
-           paths: "test-results/results.xml"
+           paths: "test-reports/junit.xml"
 
-      - name: Publish Test Results
-        uses: EnricoMi/publish-unit-test-result-action@v1
+      - name: Upload Code Coverage report 
+        uses: actions/upload-artifact@v4
         with:
-           files: "test-results/results.xml"
+           name: Code Coverage report
+           path: code-coverage
+
+      #- name: Publish Test Results
+      #  uses: EnricoMi/publish-unit-test-result-action@v2
+      #  if: always()
+      #  with:
+      #    files: |
+      #      test-reports/junit.xml
+      #    # code-coverage/cobertura-coverage.xml
+
+  compile-deployment:
+    
+    strategy:
+      matrix:
+         os: [ubuntu-latest]
+
+    needs: test
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup MATLAB on the GitHub Actions runner
+        uses: matlab-actions/setup-matlab@v2
+        with:
+          cache: true
+          products: ${{ env.PRODUCT_LIST }}
+      - name: Start display server (required for building doc in MATLAB)
+        run: |
+          Xvfb :99 & 
+          echo "DISPLAY=:99" >> $GITHUB_ENV
+ 
+      - name: Build MPS Archive
+        uses: matlab-actions/run-build@v2
+        with:
+          tasks: deployMPSArchive
+
+      - name: Build WebApp Archive
+        uses: matlab-actions/run-build@v2
+        with:
+          tasks: deployWebApp
+          
+      - name: Upload Production Server Archive 
+        uses: actions/upload-artifact@v4
+        with:
+          name: Travel Man Production Server Archive 
+          path: shortestTripproductionServerArchive
+
+      - name: Upload WebApp Server Archive 
+        uses: actions/upload-artifact@v4
+        with:
+          name: Travel Man WebApp Server Archive 
+          path: TravelingSalesmanwebAppArchive  
+
+      # Copy MPS archive to edison.mathworks-workshop.com by using scp
+      - name: copy MPS file to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PASSWORD }}
+          port: ${{ secrets.PORT }}
+          source: shortestTripproductionServerArchive
+          target: /home/ubuntu/samd/mps/apps/R2024b
+
+      # Production Server doesn't read subfolder, we need to ssh into the machine 
+      # and copy the cft to the right place
+
+      - name: move MPS file
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PASSWORD }}
+          port: ${{ secrets.PORT }}
+          script: mv /home/ubuntu//samd/mps/apps/R2024b/shortestTripproductionServerArchive/shortestTrip.ctf /home/ubuntu//samd/mps/apps/R2024b
+ 
+
+      # Copy WebApp archive to edison.mathworks-workshop.com by using scp
+      - name: copy WebApp file to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PASSWORD }}
+          port: ${{ secrets.PORT }}
+          source: TravelingSalesmanwebAppArchive
+          target: /home/ubuntu/samd/webapp/apps   
+
+  integrationTest:
+    
+    strategy:
+      matrix:
+         os: [ubuntu-latest]
+    needs: compile-deployment 
+    
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup MATLAB on the GitHub Actions runner
+        uses: matlab-actions/setup-matlab@v2
+        with:
+          cache: true
+          products: ${{ env.PRODUCT_LIST }}
+      - name: Start display server (required for building doc in MATLAB)
+        run: |
+          Xvfb :99 & 
+          echo "DISPLAY=:99" >> $GITHUB_ENV
+      # Do integration test    
+      - name: Integration Test
+        uses: matlab-actions/run-build@v2
+        with:
+          tasks: integrationTest
+
+#      - name: Publish Test Results
+#        uses: EnricoMi/publish-unit-test-result-action@v1
+#        with:
+#           files: "test-reports/junit.html"
  
  #     - name: Run un ${{ matrix.os }} with script
  #       uses: matlab-actions/run-command@v2
