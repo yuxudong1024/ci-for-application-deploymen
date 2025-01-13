@@ -17,7 +17,7 @@ unit-test-job:
     name: $DOCKER_IMAGE:$IMAGE_TAG
   script:
     - echo "Running unit tests..."
-    - matlab-batch "buildtool check test -verbosity Verbose"
+    - mw -using R2024b:ship matlab -batch "buildtool check test -verbosity Verbose"
   coverage: '/Statement: \d+/\d+ \((\d+\.\d+)%\)/'
   artifacts:
     when: always
@@ -55,23 +55,23 @@ build-job:
     name: $DOCKER_IMAGE:$IMAGE_TAG
   script:
     - echo "Building web app..."    
-    - matlab-batch "buildtool deployWebApp('TEST','$GITLAB_USER_LOGIN') -verbosity Verbose"
-    #- echo "Deploying production server archive and html frontend..."
-    - matlab-batch "buildtool deployFrontend deployMPSArchive('TEST', '$GITLAB_USER_LOGIN') -verbosity Verbose"
+    - mw -using R2024b:ship matlab -batch "buildtool deployWebApp('TEST','$GITLAB_USER_LOGIN') -verbosity Verbose"
+    - echo "Deploying production server archive and html frontend..."
+    - mw -using R2024b:ship matlab -batch "buildtool deployFrontend deployMPSArchive('TEST', '$GITLAB_USER_LOGIN') -verbosity Verbose"
   artifacts:
     paths:
       - deploy
       - .buildtool
       - public
 
-deploy-job:
-  stage: deploy
-  tags:
-    - on-prem
-  script:
-    - echo "Deploying web app..."    
-    - cp deploy/webapp/TravelingSalesman.ctf "//mathworks/inside/labs/matlab/mwa/TravelingSalesman-TEST/TravelingSalesman_$GITLAB_USER_LOGIN.ctf"
-    - cp deploy/mpsArchive/shortestTrip.ctf "//mathworks/inside/labs/matlab/mps/shortestTrip_TEST_$GITLAB_USER_LOGIN.ctf"
+#deploy-job:
+#  stage: deploy
+#  tags:
+#    - on-prem
+#  script:
+#    - echo "Deploying web app..."    
+#    - cp deploy/webapp/TravelingSalesman.ctf "//mathworks/inside/labs/matlab/mwa/TravelingSalesman-TEST/TravelingSalesman_$GITLAB_USER_LOGIN.ctf"
+#    - cp deploy/mpsArchive/shortestTrip.ctf "//mathworks/inside/labs/matlab/mps/shortestTrip_TEST_$GITLAB_USER_LOGIN.ctf"
 
 integ-test-job:
   stage: integ-test
@@ -81,12 +81,13 @@ integ-test-job:
     name: $DOCKER_IMAGE:$IMAGE_TAG
   script:
     - echo "Running integration test on production"    
-    - matlab-batch "buildtool deployMPSArchive('TEST','$GITLAB_USER_LOGIN') integrationTest"
+    - mw -using R2024b:ship matlab -batch "buildtool deployMPSArchive('TEST','$GITLAB_USER_LOGIN') integrationTest"
   artifacts:
     when: always
     paths:
       - deploy
       - .buildtool
+      
 pages:
   stage: publish
   tags:
