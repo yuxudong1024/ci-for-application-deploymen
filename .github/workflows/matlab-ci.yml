@@ -46,13 +46,13 @@ jobs:
       - name: Junit Test Summary
         uses: test-summary/action@v2
         with:
-           paths: "test-reports/junit.xml"
+           paths: "public/test-reports/junit.xml"
 
       - name: Upload Code Coverage report 
         uses: actions/upload-artifact@v4
         with:
            name: Code Coverage report
-           path: code-coverage
+           path: public/code-coverage
 
       #- name: Publish Test Results
       #  uses: EnricoMi/publish-unit-test-result-action@v2
