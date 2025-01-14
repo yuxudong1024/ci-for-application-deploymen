@@ -22,7 +22,7 @@ algorithm can be invoked from JavaScript.
 
 ## GitHub Action 
 
-A mirror repo https://github.com/yuxudong1024/MATLAB-Travel-Man-DevOps has been added.
+A mirror repo https://github.com/yuxudong1024/ci-for-application-deploymen has been added.
 
 Use the Personal access tokens on GitHub to grant the access for user yuxudong1024. Will expire at the begin of Dec 2025
 
