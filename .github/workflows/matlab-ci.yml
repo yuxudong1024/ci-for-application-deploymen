@@ -151,7 +151,7 @@ jobs:
           username: ${{ secrets.USERNAME }}
           password: ${{ secrets.PASSWORD }}
           port: ${{ secrets.PORT }}
-          script: mv /home/ubuntu/samd/mps/apps/deploy/webapp/TravelingSalesman.ctf /home/ubuntu/samd/mps/apps     
+          script: mv /home/ubuntu/samd/webapp/apps/deploy/webapp/TravelingSalesman.ctf /home/ubuntu/samd/webapp/apps     
 
   integrationTest:
     
