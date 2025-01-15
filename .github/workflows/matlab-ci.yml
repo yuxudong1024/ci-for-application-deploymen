@@ -128,8 +128,7 @@ jobs:
           username: ${{ secrets.USERNAME }}
           password: ${{ secrets.PASSWORD }}
           port: ${{ secrets.PORT }}
-          script: mv /home/ubuntu/samd/mps/apps/R2024b/deploy/mpsArchive/shortestTrip.ctf /home/ubuntu//samd/mps/apps/R2024b
- 
+          script: mv /home/ubuntu/samd/mps/apps/R2024b/deploy/mpsArchive/shortestTrip.ctf /home/ubuntu//samd/mps/apps/R2024b    
 
       # Copy WebApp archive to edison.mathworks-workshop.com by using scp
       - name: copy WebApp file to server
@@ -141,6 +140,18 @@ jobs:
           port: ${{ secrets.PORT }}
           source: deploy/webapp
           target: /home/ubuntu/samd/webapp/apps   
+
+      # Do the same thing for WebApp Server as Production Server, we need to ssh into the machine 
+      # and copy the cft to the right place
+
+      - name: move WebApp file
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PASSWORD }}
+          port: ${{ secrets.PORT }}
+          script: mv /home/ubuntu/samd/mps/apps/deploy/webapp/TravelingSalesman.ctf /home/ubuntu/samd/mps/apps     
 
   integrationTest:
     
