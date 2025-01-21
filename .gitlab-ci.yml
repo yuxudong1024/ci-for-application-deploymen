@@ -23,23 +23,23 @@ unit-test-job:
         coverage_format: cobertura
         path: public/code-coverage/cobertura-coverage.xml
 
-# visdiff:
-#   stage: test
-#   tags:
-#     - docker-exec
-#   image: 
-#     name: $DOCKER_IMAGE:$IMAGE_TAG
-#   script:
-#     - echo "Comparing current version of MATLAB app to status in main branch..."
-#     - git config --global --add safe.directory $CI_PROJECT_DIR
-#     - matlab-batch "buildtool publishAppDiffToMain('visdiff') -verbosity Verbose"
-#     - echo "Report published as artifact in visdiff folder"
-#   dependencies: [] # Prevent downloading of artifacts from previous jobs
-#   artifacts:
-#     paths:
-#       - visdiff/*
-#   except:
-#     - main
+visdiff:
+  stage: test
+  tags:
+    - docker-exec
+  image: 
+    name: $DOCKER_IMAGE:$IMAGE_TAG
+  script:
+    - echo "Comparing current version of MATLAB app to status in main branch..."
+    - git config --global --add safe.directory $CI_PROJECT_DIR
+    - matlab-batch "buildtool publishAppDiffToMain('visdiff') -verbosity Verbose"
+    - echo "Report published as artifact in visdiff folder"
+  dependencies: [] # Prevent downloading of artifacts from previous jobs
+  artifacts:
+    paths:
+      - visdiff/*
+  except:
+    - main
 
 build-job:
   stage: build
@@ -55,15 +55,6 @@ build-job:
       - deploy
       - .buildtool
       - public
-
-#deploy-job:
-#  stage: deploy
-#  tags:
-#    - on-prem
-#  script:
-#    - echo "Deploying web app..."    
-#    - cp deploy/webapp/TravelingSalesman.ctf "//mathworks/inside/labs/matlab/mwa/TravelingSalesman-TEST/TravelingSalesman_$GITLAB_USER_LOGIN.ctf"
-#    - cp deploy/mpsArchive/shortestTrip.ctf "//mathworks/inside/labs/matlab/mps/shortestTrip_TEST_$GITLAB_USER_LOGIN.ctf"
 
 integ-test-job:
   stage: integ-test

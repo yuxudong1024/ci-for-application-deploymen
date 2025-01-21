@@ -1,5 +1,4 @@
 # Badges
-Badges can't be showed in GitHub
 
 [![coverage](https://cbollige.insidelabspages.mathworks.com/matlab-ci-workshop-sko-2025/coverageBadge.svg)](https://cbollige.insidelabspages.mathworks.com/matlab-ci-workshop-sko-2025/code-coverage/coverage.html)
 [![tests](https://cbollige.insidelabspages.mathworks.com/matlab-ci-workshop-sko-2025/testBadge.svg)](https://cbollige.insidelabspages.mathworks.com/matlab-ci-workshop-sko-2025/test-reports/test-results.html)
@@ -23,7 +22,21 @@ accessible directly within the CI system for easy review.
 Additionally, an HTML frontend is provided to showcase how the deployed 
 algorithm can be invoked from JavaScript.
 
-## GitHub Action 
+## Unit Testing
+![Unit Testing](assets/testing.png)
+
+## Deployment
+![Application Deployment](assets/deployment.png)
+
+## Products
+- MATLAB	
+- MATLAB Compiler
+- MATLAB Compiler SDK
+- Optimization Toolbox
+- Global Optimization Toolbox
+- MATLAB Test
+
+## GitHub Actions
 
 A mirror repo https://github.com/yuxudong1024/ci-for-application-deploymen has been added.
 
