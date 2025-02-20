@@ -10,14 +10,9 @@ variables:
   # Container registry service connection established during pipeline creation
   dockerRegistryServiceConnection: '820b0428-ed28-4170-acc5-52057f6ee075'
   imageRepositoryMATLAB: 'matlab'
-  imageRepositoryMATLABPolyspace: 'matlab-polyspace'
-  imageRepositoryPolyspace: 'polyspace'
   containerRegistry: 'winston.azurecr.io'
   dockerfilePathMATLAB: '$(Build.SourcesDirectory)/matlab_MBD/Dockerfile'
-  dockerfilePathMATLABPolyspace: '$(Build.SourcesDirectory)/matlab_polyspace-server/Dockerfile'
-  dockerfilePathPolyspace: '$(Build.SourcesDirectory)/polyspace-server/Dockerfile'
   MATLAB_RELEASE: 'R2024b'
-  licenseServer: 27000@@sko2025license.mathworks-workshop.com
   isMain: $[eq(variables['Build.SourceBranch'], 'refs/heads/main')]
 
 stages:
@@ -32,6 +27,8 @@ stages:
        image: $(containerRegistry)/$(imageRepositoryMATLAB):$(MATLAB_RELEASE)
        endpoint: winston
      steps:
-     - script: matlab-batch "buildtool check test -verbosity Verbose"
+     - script: |
+         Xvfb :99 &
+         matlab-batch "buildtool check test -verbosity Verbose"
        env:
          MLM_LICENSE_TOKEN: $(MLM_LICENSE_TOKEN)
