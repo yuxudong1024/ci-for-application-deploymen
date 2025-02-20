@@ -51,3 +51,9 @@ Set Mirroring repositories, use your GitHub account username and the personal ac
 The WebApp and Production server for delopyment and testing run on AWS: https://edison.mathworks-workshop.com:8443
 
 Production Server run as a Docker, you can find all the contents at https://github.com/yuxudong1024/MATLAB-Travel-Man-DevOps/tree/main/Docker/matlab-prodserver/R2024b
+
+## Azure DevOps
+
+Mirror to https://dev.azure.com/wyu0218/CI%20for%20Application%20Deployment
+
+Set up access token https://dev.azure.com/wyu0218/_usersSettings/tokens to enable mirror (user is wyu@mathworks.com and password is token)
