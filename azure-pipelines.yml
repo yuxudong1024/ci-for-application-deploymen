@@ -20,7 +20,7 @@ variables:
   licenseServer: 27000@@sko2025license.mathworks-workshop.com
   isMain: $[eq(variables['Build.SourceBranch'], 'refs/heads/main')]
 
-  stages:
+stages:
 - stage: Test
   displayName: Test MATLAB job inside MATLAB Docker
   jobs:
