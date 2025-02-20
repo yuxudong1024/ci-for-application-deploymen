@@ -28,7 +28,6 @@ stages:
        endpoint: winston
      steps:
      - script: |
-         Xvfb :99 &
-         matlab-batch "buildtool check test -verbosity Verbose"
+         xvfb-run matlab-batch "buildtool check test -verbosity Verbose"
        env:
          MLM_LICENSE_TOKEN: $(MLM_LICENSE_TOKEN)
