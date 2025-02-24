@@ -31,3 +31,9 @@ stages:
          xvfb-run matlab-batch "buildtool check test -verbosity Verbose"
        env:
          MLM_LICENSE_TOKEN: $(MLM_LICENSE_TOKEN)
+     - task: PublishTestResults@2
+       inputs:
+         testResultsFormat: 'JUnit'
+         testResultsFiles: 'public/test-reports/junit.xml'
+         testRunTitle: 'MATLAB Tests'
+         testRunSystem: 'MATLAB'
