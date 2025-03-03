@@ -34,8 +34,6 @@ stages:
 #         MLM_LICENSE_TOKEN: $(MLM_LICENSE_TOKEN)
      - script: |
           df -h
-          docker image prune -a
-          df -h
           Xvfb :99 &
        condition: eq(variables['Agent.OS'],'Linux') 
      - task: RunMATLABBuild@1
