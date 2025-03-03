@@ -33,6 +33,7 @@ stages:
 #       env:
 #         MLM_LICENSE_TOKEN: $(MLM_LICENSE_TOKEN)
      - script: |
+          df -h
           xvfb-run
        condition: eq(variables['Agent.OS'],'Linux') 
      - task: RunMATLABBuild@1
@@ -52,9 +53,9 @@ stages:
      #      summaryFileLocation: 'public/code-coverage/coverage.xml'
 # Publish code coverage results v2
 # Publish any of the code coverage results from a build.
-     # - task: PublishCodeCoverageResults@2
-     #   inputs:
-     #     pathToSources: public/code-coverage
+     - task: PublishCodeCoverageResults@2
+       inputs:
+         pathToSources: public/code-coverage
          #summaryFileLocation: # string. Required. Path to summary files. 
          #pathToSources: # string. Path to Source files. 
          #failIfCoverageEmpty: false # boolean. Fail if code coverage results are missing. Default: false.
