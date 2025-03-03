@@ -34,8 +34,7 @@ stages:
 #         MLM_LICENSE_TOKEN: $(MLM_LICENSE_TOKEN)
      - script: |
           xvfb-run
-     displayName: Start virtual display server
-     condition: eq(variables['Agent.OS'],'Linux') 
+       condition: eq(variables['Agent.OS'],'Linux') 
      - task: RunMATLABBuild@1
        inputs:
          tasks: test
