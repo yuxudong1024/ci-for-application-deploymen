@@ -34,7 +34,7 @@ stages:
 #         MLM_LICENSE_TOKEN: $(MLM_LICENSE_TOKEN)
      - script: |
           df -h
-          xvfb-run
+          Xvfb :99 &
        condition: eq(variables['Agent.OS'],'Linux') 
      - task: RunMATLABBuild@1
        inputs:
