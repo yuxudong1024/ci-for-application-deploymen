@@ -46,10 +46,10 @@ stages:
          testResultsFiles: 'public/test-reports/junit.xml'
          testRunTitle: 'MATLAB Tests'
          testRunSystem: 'MATLAB'
-     - task: PublishCodeCoverageResults@2
-        inputs:
-          codeCoverageTool: Cobertura
-          summaryFileLocation: 'public/code-coverage/coverage.xml'
+     # - task: PublishCodeCoverageResults@2
+     #    inputs:
+     #      codeCoverageTool: Cobertura
+     #      summaryFileLocation: 'public/code-coverage/coverage.xml'
 # Publish code coverage results v2
 # Publish any of the code coverage results from a build.
      - task: PublishCodeCoverageResults@2
