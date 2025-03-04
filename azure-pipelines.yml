@@ -61,6 +61,25 @@ stages:
          codeCoverageTool: Cobertura
          pathToSources: public/code-coverage
          summaryFileLocation: 'public/code-coverage/coverage.xml'
-         #summaryFileLocation: # string. Required. Path to summary files. 
-         #pathToSources: # string. Path to Source files. 
          #failIfCoverageEmpty: false # boolean. Fail if code coverage results are missing. Default: false.
+     - task: PublishBuildArtifacts@1
+       inputs:
+         pathToPublish: public/code-coverage
+     - task: RunMATLABBuild@1
+       inputs:
+         tasks: deployMPSArchive
+       env:
+         MLM_LICENSE_TOKEN: $(MLM_LICENSE_TOKEN)
+         DISPLAY: $(DISPLAY)
+     - task: RunMATLABBuild@1
+       inputs:
+         tasks: deployWebApp
+       env:
+         MLM_LICENSE_TOKEN: $(MLM_LICENSE_TOKEN)
+         DISPLAY: $(DISPLAY)
+     - task: PublishBuildArtifacts@1
+       inputs:
+         pathToPublish: deploy/mpsArchive
+     - task: PublishBuildArtifacts@1
+       inputs:
+         pathToPublish: deploy/webapp
