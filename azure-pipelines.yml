@@ -42,9 +42,6 @@ stages:
        env:
          MLM_LICENSE_TOKEN: $(MLM_LICENSE_TOKEN)
          DISPLAY: $(DISPLAY)
-     - task: PublishBuildArtifacts@1
-       inputs:
-         pathToPublish: 'public/test-results/results.pdf'
      - task: PublishTestResults@2
        condition: succeededOrFailed()
        inputs:
@@ -61,6 +58,7 @@ stages:
      - task: PublishCodeCoverageResults@2
        condition: succeededOrFailed()
        inputs:
+         codeCoverageTool: Cobertura
          pathToSources: public/code-coverage
          summaryFileLocation: 'public/code-coverage/coverage.xml'
          #summaryFileLocation: # string. Required. Path to summary files. 
