@@ -32,17 +32,20 @@ stages:
 #         xvfb-run matlab-batch "buildtool check test -verbosity Verbose"
 #       env:
 #         MLM_LICENSE_TOKEN: $(MLM_LICENSE_TOKEN)
+# Start XWindow
      - script: |
           df -h
           Xvfb :99 &
        condition: eq(variables['Agent.OS'],'Linux') 
      - task: RunMATLABBuild@1
+       displayName: Run MATLAB Test
        inputs:
          tasks: test
        env:
          MLM_LICENSE_TOKEN: $(MLM_LICENSE_TOKEN)
          DISPLAY: $(DISPLAY)
      - task: PublishTestResults@2
+       displayName: Publish JUnit test result
        condition: succeededOrFailed()
        inputs:
          testResultsFormat: 'JUnit'
@@ -56,30 +59,39 @@ stages:
 # Publish code coverage results v2
 # Publish any of the code coverage results from a build.
      - task: PublishCodeCoverageResults@2
+       displayName: Publish Code Coverage
        condition: succeededOrFailed()
        inputs:
          codeCoverageTool: Cobertura
          pathToSources: public/code-coverage
-         summaryFileLocation: 'public/code-coverage/coverage.xml'
+         summaryFileLocation: 'public/code-coverage/cobertura-coverage.xml'
          #failIfCoverageEmpty: false # boolean. Fail if code coverage results are missing. Default: false.
      - task: PublishBuildArtifacts@1
+       displayName: upload coverage report artifacts
        inputs:
          pathToPublish: public/code-coverage
+         artifactName: coverage
      - task: RunMATLABBuild@1
+       displayName: Build MPS
        inputs:
          tasks: deployMPSArchive
        env:
          MLM_LICENSE_TOKEN: $(MLM_LICENSE_TOKEN)
          DISPLAY: $(DISPLAY)
      - task: RunMATLABBuild@1
+       displayName: Build WebApp Server
        inputs:
          tasks: deployWebApp
        env:
          MLM_LICENSE_TOKEN: $(MLM_LICENSE_TOKEN)
          DISPLAY: $(DISPLAY)
      - task: PublishBuildArtifacts@1
+       displayName: Upload MPS artifact
        inputs:
          pathToPublish: deploy/mpsArchive
+         artifactName: mps
      - task: PublishBuildArtifacts@1
+       displayName: Upload WebApp Server artifact
        inputs:
          pathToPublish: deploy/webapp
+         artifactName: webapp
