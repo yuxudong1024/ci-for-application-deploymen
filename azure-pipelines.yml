@@ -64,7 +64,7 @@ stages:
        inputs:
          codeCoverageTool: Cobertura
          pathToSources: public/code-coverage
-         summaryFileLocation: 'public/code-coverage/cobertura-coverage.xml'
+         summaryFileLocation: 'public/code-coverage/coverage.html'
          #failIfCoverageEmpty: false # boolean. Fail if code coverage results are missing. Default: false.
      - task: PublishBuildArtifacts@1
        displayName: upload coverage report artifacts
