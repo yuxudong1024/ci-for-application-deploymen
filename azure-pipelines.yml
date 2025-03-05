@@ -42,6 +42,9 @@ stages:
        displayName: Run MATLAB Test
        inputs:
          tasks: test
+         testResultsPDF: 'public/test-results/results.pdf'
+         testResultsJUnit: 'public/test-results/results.xml'
+         codeCoverageCobertura: 'public/code-coverage/coverage.xml'
        env:
          MLM_LICENSE_TOKEN: $(MLM_LICENSE_TOKEN)
          DISPLAY: $(DISPLAY)
@@ -65,7 +68,7 @@ stages:
        inputs:
          codeCoverageTool: Cobertura
          pathToSources: public/code-coverage
-         summaryFileLocation: 'public/code-coverage/*coverage.html'
+         summaryFileLocation: 'public/code-coverage/*coverage.xml'
          reportDirectory: 'public/code-coverage/**'
          #failIfCoverageEmpty: false # boolean. Fail if code coverage results are missing. Default: false.
      - task: PublishBuildArtifacts@1
