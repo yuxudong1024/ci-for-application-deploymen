@@ -37,6 +37,7 @@ stages:
           df -h
           Xvfb :99 &
        condition: eq(variables['Agent.OS'],'Linux') 
+       displayName: Setup XWindows at 99
      - task: RunMATLABBuild@1
        displayName: Run MATLAB Test
        inputs:
@@ -64,7 +65,8 @@ stages:
        inputs:
          codeCoverageTool: Cobertura
          pathToSources: public/code-coverage
-         summaryFileLocation: 'public/code-coverage/coverage.html'
+         summaryFileLocation: 'public/code-coverage/*coverage.html'
+         reportDirectory: 'public/code-coverage/**'
          #failIfCoverageEmpty: false # boolean. Fail if code coverage results are missing. Default: false.
      - task: PublishBuildArtifacts@1
        displayName: upload coverage report artifacts
